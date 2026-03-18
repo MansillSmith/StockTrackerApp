@@ -10,9 +10,6 @@ export default function App() {
     <View style={styles.container}>
       <Text>Open up App.tsx to start working on your app!</Text>
       <PortfolioEntry icon={androidIcon} name="Android"></PortfolioEntry>
-      <PortfolioEntry icon={androidIcon} name="Android"></PortfolioEntry>
-      <PortfolioEntry icon={androidIcon} name="Android"></PortfolioEntry>
-      <PortfolioEntry icon={androidIcon} name="Android"></PortfolioEntry>
       <StatusBar style="auto" />
     </View>
   );
