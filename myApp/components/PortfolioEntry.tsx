@@ -1,9 +1,9 @@
 import { View, Text, Image, StyleSheet, ImageSourcePropType } from "react-native";
 import { PortfolioEntryChange } from "./PortfolioEntryChange";
 
-type PortFolioEntryProps = { icon:ImageSourcePropType, name:string};
+export type PortFolioEntryProps = { icon:ImageSourcePropType, name:string, totalChange:number, percentChange:number};
 
-export function PortfolioEntry({icon, name}: PortFolioEntryProps) {
+export function PortfolioEntry({icon, name, totalChange, percentChange}: PortFolioEntryProps) {
     return(
         <View style={styles.container}>
           <View style={{
@@ -15,7 +15,7 @@ export function PortfolioEntry({icon, name}: PortFolioEntryProps) {
             <Image source={icon} style={styles.icon}/>
             <Text>{name}</Text>
           </View>
-          <PortfolioEntryChange totalChange={123} percentChange={12.1}></PortfolioEntryChange>
+          <PortfolioEntryChange totalChange={totalChange} percentChange={percentChange}></PortfolioEntryChange>
         </View>
     )
 }

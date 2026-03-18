@@ -1,18 +1,16 @@
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
-import { PortfolioEntry } from './components/PortfolioEntry';
+// import { PortfolioEntry } from './components/PortfolioEntry';
+import { Portfolio } from './components/Portfolio';
 
 // temp
-import androidIcon from './assets/android-icon-foreground.png';
+// import androidIcon from './assets/android-icon-foreground.png';
 
 export default function App() {
   return (
     <View style={styles.container}>
       <Text>Open up App.tsx to start working on your app!</Text>
-      <PortfolioEntry icon={androidIcon} name="Android"></PortfolioEntry>
-      <PortfolioEntry icon={androidIcon} name="Android"></PortfolioEntry>
-      <PortfolioEntry icon={androidIcon} name="Android"></PortfolioEntry>
-      <PortfolioEntry icon={androidIcon} name="Android"></PortfolioEntry>
+      <Portfolio></Portfolio>
       <StatusBar style="auto" />
     </View>
   );
