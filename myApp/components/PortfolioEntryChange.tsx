@@ -11,20 +11,21 @@ export function PortfolioEntryChange({totalChange, percentChange}: PortfolioEntr
         <View style={[
             styles.container,
             {
-                backgroundColor: totalChange >= 0 ? '#0f0' : '#f00',
-                borderRadius: 20,
-                width: 100,
+                backgroundColor: totalChange > 0 ? '#0f0' : totalChange < 0 ? '#f00' : '#ccc',
+                borderRadius: 10,
+                width: 80,
                 flexDirection:'row',
-                alignItems: 'center'
+                alignItems: 'center',
+                marginRight: 5
             }
         ]}>
-            <Text style={{fontSize:25}}>{totalChange > 0 ? "+" : "-"}</Text>
+            <Text style={{fontSize:25, marginLeft: 5}}>{totalChange > 0 ? "+" : "-"}</Text>
             <View style={{
                 marginLeft: 'auto',
                 marginRight: 15
             }}>
-                <Text>{totalChange}</Text>
-                <Text>{percentChange}%</Text>
+                <Text>{totalChange.toFixed(2)}</Text>
+                <Text>{percentChange.toFixed(2)}%</Text>
             </View>
         </View>
     )
@@ -37,6 +38,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
   container:{
-    borderRadius: 20
+    borderRadius: 10
   }
 });

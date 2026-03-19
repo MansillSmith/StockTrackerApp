@@ -3,14 +3,21 @@ import { StyleSheet, Text, View } from 'react-native';
 // import { PortfolioEntry } from './components/PortfolioEntry';
 import { Portfolio } from './components/Portfolio';
 
+import { SQLiteProvider } from 'expo-sqlite';
+// import { useMigrations } from 'expo-sqlite/migrations';
+
 // temp
 // import androidIcon from './assets/android-icon-foreground.png';
 
 export default function App() {
   return (
     <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <Portfolio></Portfolio>
+      <SQLiteProvider
+        databaseName="db.db"
+        assetSource={{ assetId: require('./assets/db.db') }}
+      >
+        <Portfolio></Portfolio>
+      </SQLiteProvider>
       <StatusBar style="auto" />
     </View>
   );
@@ -19,7 +26,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f00',
     alignItems: 'center',
     justifyContent: 'center'
   },

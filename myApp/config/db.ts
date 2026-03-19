@@ -1,1 +1,1 @@
-export const DB_NAME = 'stocktrackerdb.db'
+export const DB_NAME = 'db.db'

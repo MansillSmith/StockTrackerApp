@@ -1,19 +1,21 @@
 import { View, Text, Image, StyleSheet, ImageSourcePropType } from "react-native";
 import { PortfolioEntryChange } from "./PortfolioEntryChange";
 
-export type PortFolioEntryProps = { icon:ImageSourcePropType, name:string, totalChange:number, percentChange:number};
+export type PortFolioEntryProps = { icon:ImageSourcePropType, name:string, numberOfShares:number, currentValue:number, totalChange:number, percentChange:number};
 
-export function PortfolioEntry({icon, name, totalChange, percentChange}: PortFolioEntryProps) {
+export function PortfolioEntry({icon, name, numberOfShares, currentValue, totalChange, percentChange}: PortFolioEntryProps) {
     return(
         <View style={styles.container}>
           <View style={{
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
-            marginRight: 20
+            marginRight: 10
             }}>
             <Image source={icon} style={styles.icon}/>
-            <Text>{name}</Text>
+            <Text style={{fontWeight:'bold', fontSize:20}}>{name}</Text>
+            <Text style={styles.minorNumber}>{numberOfShares.toFixed(3)}</Text>
+            <Text style={styles.minorNumber}>${currentValue.toFixed(2)}</Text>
           </View>
           <PortfolioEntryChange totalChange={totalChange} percentChange={percentChange}></PortfolioEntryChange>
         </View>
@@ -22,19 +24,22 @@ export function PortfolioEntry({icon, name, totalChange, percentChange}: PortFol
 
 const styles = StyleSheet.create({
   container: { 
-    // flex:1, 
-    flexDirection: 'row',
+   flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'space-between', // 👈 key for left/right split
     backgroundColor: '#CCC',
-    borderRadius: 20,
-    width: '100%',
-    marginTop: 2,
-    marginBottom: 2
+    borderRadius: 10,
+    width: '100%', // 👈 fill parent width
+    height: 50,
+    paddingHorizontal: 10, // space inside left/right edges
+    marginVertical: 2,
   },
   icon: { 
     width: 50,
     height: 50,
     borderRadius: 25
- },
+  },
+  minorNumber:{
+    marginLeft: 5
+  }
 });
