@@ -1,13 +1,13 @@
 import { Pressable, Text, View} from 'react-native';
 import { globalStyles } from '../styles';
 
-type ActionButtonsProps = {
-  onAdd: () => void;
-  onEdit: () => void;
-};
+// type ActionButtonsProps = {
+//   onAdd: () => void;
+//   onEdit: () => void;
+// };
 
 
-export function ActionButtons({ onAdd, onEdit }: ActionButtonsProps){
+export function ActionButtons({ onAdd, onEdit }){
     return (
         <View style={{flexDirection:'row'}}>
             <Pressable style={globalStyles.button} onPress={onAdd}>
