@@ -1,25 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-// import { PortfolioEntry } from './components/PortfolioEntry';
-import { Portfolio } from './components/Portfolio';
+import { StyleSheet} from 'react-native';
+
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { SQLiteProvider } from 'expo-sqlite';
-// import { useMigrations } from 'expo-sqlite/migrations';
+import { Portfolios } from './components/Portfolios';
+import { PortfolioAccounts } from './components/PortfolioAccounts';
+import { RootStackParamList } from "./types";
 
-// temp
-// import androidIcon from './assets/android-icon-foreground.png';
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <SQLiteProvider
-        databaseName="db.db"
-        assetSource={{ assetId: require('./assets/db.db') }}
-      >
-        <Portfolio></Portfolio>
+       <SQLiteProvider
+          databaseName="db.db"
+          assetSource={{ assetId: require('./assets/db.db') }}
+        >
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen name="Portfolios" component={Portfolios}/>
+            <Stack.Screen name="PortfolioAccounts" component={PortfolioAccounts}/>
+          </Stack.Navigator>          
+        </NavigationContainer>
       </SQLiteProvider>
-      <StatusBar style="auto" />
-    </View>
   );
 }
 
