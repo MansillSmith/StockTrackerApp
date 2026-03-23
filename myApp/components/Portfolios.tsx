@@ -26,10 +26,10 @@ export function Portfolios(){
     }, []);
 
     return(
-        <View style={globalStyles.container}>
+        <>
             {portfolioEntries.map((i) => (
                 <PortfolioItem key={i.ID} ID={i.ID} Name={i.Name}/>
             ))}
-        </View>
+        </>
     )
 }

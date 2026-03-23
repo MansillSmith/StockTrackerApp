@@ -11,5 +11,15 @@ export const globalStyles = StyleSheet.create({
     height: 50,
     paddingHorizontal: 10, // space inside left/right edges
     marginVertical: 2,
+  },
+  button:{
+    width:30,
+    height:30,
+    borderRadius:5,
+    backgroundColor: '#aaa',
+    justifyContent: 'center',
+    alignItems: 'center',
+    margin: 5
+
   }
 });
