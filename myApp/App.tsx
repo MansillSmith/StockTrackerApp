@@ -28,10 +28,7 @@ export default function App() {
         <NavigationContainer>
           <Stack.Navigator>
             <Stack.Screen name="Portfolios" component={Portfolios}/>
-            <Stack.Screen name="PortfolioAccounts" component={PortfolioAccounts} options={{ 
-              title: "Accounts" ,
-              headerRight: () => (<ActionButtons onAdd={() => {}} onEdit={() =>{}}/>)
-            }}/>
+            <Stack.Screen name="PortfolioAccounts" component={PortfolioAccounts} options={{title: "Accounts"}}/>
           </Stack.Navigator>     
         </NavigationContainer>
       </SQLiteProvider>

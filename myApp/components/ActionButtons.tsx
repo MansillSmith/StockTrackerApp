@@ -22,8 +22,8 @@ export function ActionButtons({ onAdd, onEdit, onRemove}){
         return (
         <View style={{flexDirection:'row'}}>
             <ActionButton onPressEvent={onAdd} word="+"/>
-            {/* <ActionButton onPressEvent={onEdit} word="✏️"/>
-            <ActionButton onPressEvent={onRemove} word="🗑️"/> */}
+            <ActionButton onPressEvent={() => {}} word="⚙️"/>
+            {/* <ActionButton onPressEvent={onRemove} word="🗑️"/> */}
         </View>
     )
 }

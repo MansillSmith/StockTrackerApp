@@ -6,22 +6,22 @@ import { globalStyles } from '../styles';
 import { PortfolioFormModal } from './PortfolioFormModal';
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../types";
+import { PortfolioItemData, RootStackParamList } from "../types";
 import { ActionButtons } from './ActionButtons';
 import { GetUnixTime } from './Utils';
+
+
 type Props = NativeStackScreenProps<RootStackParamList, "Portfolios">;
 
-type PortfolioData = {ID: number, Name:string}
-
 export function Portfolios({ navigation }: Props){
-    const [portfolioEntries, setPortfolioEntries] = useState<PortfolioData[]>([]);
+    const [portfolioEntries, setPortfolioEntries] = useState<PortfolioItemData[]>([]);
     const [modalVisible, setModalVisible] = useState(false);
 
     const db = useSQLiteContext();
 
     async function addPortfolio(name:string){
         const unixTime = GetUnixTime(Date.now())
-        const result = await db.runAsync("INSERT INTO Portfolios(Name, CreatedOnUnix) VALUES (?,?)", [name, unixTime])
+        const result = await db.runAsync("INSERT INTO Portfolios(Name, CreatedOnUnix, DisplayOrder) VALUES (?,?, (SELECT COALESCE(MAX(DisplayOrder), 0) + 1 FROM Portfolios))", [name, unixTime])
         return result.lastInsertRowId
     }
 
@@ -56,9 +56,9 @@ export function Portfolios({ navigation }: Props){
 
     useEffect(() => {
         async function getData(){
-            const results = await db.getAllAsync("SELECT ID, Name FROM Portfolios")
+            const results = await db.getAllAsync("SELECT ID, Name FROM Portfolios ORDER BY DisplayOrder")
             console.log(results)
-            const data: PortfolioData[] = results.map((row: any) =>({
+            const data: PortfolioItemData[] = results.map((row: any) =>({
                 ID: row.ID,
                 Name: row.Name
             }));
@@ -85,7 +85,7 @@ export function Portfolios({ navigation }: Props){
                 onClose={() => setModalVisible(false)}
                 onSubmit={async (name) => {
                     const newid = await addPortfolio(name)
-                    const newPortfolio: PortfolioData = {ID: newid, Name: name}
+                    const newPortfolio: PortfolioItemData = {ID: newid, Name: name}
                     console.log("new portfolio:", name, newid);
 
                     setPortfolioEntries([...portfolioEntries, newPortfolio])

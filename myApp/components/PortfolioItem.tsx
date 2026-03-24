@@ -46,7 +46,7 @@ export function PortfolioItem({ID, Name, onEdit, onRemove}: PortfolioItemProps){
             <PortfolioFormModal
                 visible={isEditItem}
                 isAdd={false}
-                initialValue={Name}
+                portfolioItemData={{ID, Name}}
                 onClose={() => setIsEditItem(false)}
                 onSubmit={async (name) =>{
                     await onEdit(ID, name)
