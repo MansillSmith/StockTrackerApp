@@ -9,16 +9,16 @@ import { PortfolioAccounts } from './components/PortfolioAccounts';
 import { RootStackParamList } from "./types";
 import { globalStyles } from './styles';
 import { ActionButtons } from './components/ActionButtons';
-import { useEffect, useState } from 'react';
+// import { useEffect, useState } from 'react';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
-  const [portfolioModalVisible, setPortfolioModalVisible] = useState(false);
+  // const [portfolioModalVisible, setPortfolioModalVisible] = useState(false);
   
-  useEffect(() => {
-    console.log("modal:", portfolioModalVisible);
-  }, [portfolioModalVisible]);
+  // useEffect(() => {
+  //   console.log("modal:", portfolioModalVisible);
+  // }, [portfolioModalVisible]);
 
   return (
        <SQLiteProvider

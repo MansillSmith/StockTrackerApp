@@ -1,10 +1,11 @@
-import { Modal, View, Text, TextInput, Pressable } from "react-native";
+import { Modal, View, Text, TextInput, Pressable, StyleSheet } from "react-native";
 import { useState } from "react";
+import { globalStyles } from "../styles";
 
-export type PortfolioFormModalProps = {visible: boolean, onClose: () => void, onSubmit: (name:string) => void}
+export type PortfolioFormModalProps = {visible: boolean, initialValue?:string, isAdd:boolean, onClose: () => void, onSubmit: (name:string) => void}
 
-export function PortfolioFormModal({ visible, onClose, onSubmit }: PortfolioFormModalProps){
-    const [name, setName] = useState("");
+export function PortfolioFormModal({ visible, initialValue, isAdd, onClose, onSubmit }: PortfolioFormModalProps){
+    const [name, setName] = useState(initialValue ?? "");
 
     return (
         <Modal visible={visible} animationType="slide" transparent>
@@ -20,23 +21,41 @@ export function PortfolioFormModal({ visible, onClose, onSubmit }: PortfolioForm
                 borderRadius: 10,
                 width: "80%"
                 }}>
-                    <Text style={{ color: "red" }}>MODAL OPEN</Text>
-                    <Text>Hi</Text>
-                    <Pressable
-                        onPress={() => {
-                        onSubmit(name);
-                        setName("");
-                        onClose();
-                        }}
-                    >
-                        <Text>Save</Text>
-                    </Pressable>
+                    <Text style={localStyles.modelObject}>
+                        { isAdd ? "Add " : "Edit"} Porfolio
+                    </Text>
+                    <TextInput style={[globalStyles.input, localStyles.modelObject]}
+                        placeholder="Enter Portfolio Name"
+                        value={name}
+                        onChangeText={setName}
+                    />
 
-                    <Pressable onPress={onClose}>
-                        <Text>Cancel</Text>
-                    </Pressable>
+                    <View style={[localStyles.modelObject, {flexDirection:'row'}]}>
+                        <Pressable style={[globalStyles.smallButton, localStyles.wideButton]}
+                            onPress={() => {
+                            onSubmit(name);
+                            setName("");
+                            onClose();
+                            }}
+                        >
+                            <Text>Save</Text>
+                        </Pressable>
+                        <Pressable style={[globalStyles.smallButton, localStyles.wideButton]} onPress={onClose}>
+                            <Text>Cancel</Text>
+                        </Pressable>
+                    </View>
                 </View>
             </View>
         </Modal>
     )
 }
+
+export const localStyles = StyleSheet.create({
+    wideButton:{
+        width:60
+    },
+    modelObject:{
+        marginTop:10,
+        marginBottom:10
+    }
+});

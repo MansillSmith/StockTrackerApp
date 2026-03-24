@@ -6,7 +6,7 @@ import { View, Text } from "react-native";
 import { DB_NAME } from '../config/db';
 // import { PortfolioEntry, PortFolioEntryProps } from './PortfolioEntry';
 import { PortfolioAccount } from '../types';
-import androidIcon from '../assets/android-icon-foreground.png';
+// import androidIcon from '../assets/android-icon-foreground.png';
 
 import { useSQLiteContext } from 'expo-sqlite';
 
