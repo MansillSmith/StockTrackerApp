@@ -9,6 +9,7 @@ import { PortfolioAccounts } from './components/PortfolioAccounts';
 import { RootStackParamList } from "./types";
 import { globalStyles } from './styles';
 import { ActionButtons } from './components/ActionButtons';
+import { ShareAccounts } from './components/ShareAccounts';
 // import { useEffect, useState } from 'react';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -29,6 +30,7 @@ export default function App() {
           <Stack.Navigator>
             <Stack.Screen name="Portfolios" component={Portfolios}/>
             <Stack.Screen name="PortfolioAccounts" component={PortfolioAccounts} options={{title: "Accounts"}}/>
+            <Stack.Screen name="ShareAccounts" component={ShareAccounts}/>
           </Stack.Navigator>     
         </NavigationContainer>
       </SQLiteProvider>

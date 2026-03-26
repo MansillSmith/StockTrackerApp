@@ -3,6 +3,7 @@ export type RootStackParamList = {
   Accounts: undefined;
   PortfolioAccounts: { ID: number };
   // PortfolioID: { ID: number };
+  ShareAccounts: {ID: number};
 };
 
 export type PortfolioAccountProp = {

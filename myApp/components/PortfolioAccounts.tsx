@@ -16,6 +16,8 @@ import { globalStyles } from '../styles';
 import { PortfolioAccount } from './PortfolioAccount';
 import { ActionButtons } from './ActionButtons';
 
+import { getAccountsQuery } from '../utils/Queries';
+
 type Props = NativeStackScreenProps<
   RootStackParamList,
   "PortfolioAccounts"
@@ -45,23 +47,8 @@ export function PortfolioAccounts({ route, navigation }: Props) {
         async function getData(){
             // const db = await SQLite.openDatabaseAsync('databaseName');
             // const db = await setupDatabase()
-            // const results = await db.getAllSync("SELECT ID, Name FROM Accounts WHERE PortfolioID = ?", [ID])
-            {/* put this somewhere common */}
-            const query = `SELECT a.ID, a.Name, a.AccountTypeID, t.AccountBalance
-            FROM (
-                SELECT a.ID, COALESCE(SUM(jl.ReportingDebit - jl.ReportingCredit), 0)/100.0 as AccountBalance
-                FROM Accounts a
-                LEFT JOIN  JournalLines jl on jl.AccountID = a.ID
-                LEFT JOIN JournalEntries je on je.ID = jl.JournalEntryID
-                LEFT JOIN JournalEntryTypes jet on jet.ID = je.JournalEntryTypeID
-                WHERE a.PortfolioID = ?
-                GROUP BY jl.AccountID
-            ) t
-            INNER JOIN Accounts a on a.ID = t.ID
-            ORDER BY a.AccountTypeID, a.Name
-            `
-
-            const results = await db.getAllSync(query, [ID])
+            // const results = await db.getAllSync("SELECT ID, Name FROM Accounts WHERE PortfolioID = ?", [ID]
+            const results = await db.getAllSync(getAccountsQuery, [ID])
             console.log(results);
             console.log(results.length)
             const data: PortfolioAccountProp[] = results.map((row:any) => ({

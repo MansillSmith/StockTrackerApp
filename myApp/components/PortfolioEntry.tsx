@@ -1,9 +1,64 @@
 import { View, Text, Image, StyleSheet, ImageSourcePropType } from "react-native";
 import { PortfolioEntryChange } from "./PortfolioEntryChange";
+import { useSQLiteContext } from "expo-sqlite";
+import { useEffect, useState } from "react";
 
-export type PortFolioEntryProps = { icon:ImageSourcePropType, name:string, numberOfShares:number, currentValue:number, totalChange:number, percentChange:number};
+export type PortFolioEntryProps = { ID: number, icon:ImageSourcePropType, name:string, numberOfShares:number, purchaseValue:number, triggerCount?:number};
 
-export function PortfolioEntry({icon, name, numberOfShares, currentValue, totalChange, percentChange}: PortFolioEntryProps) {
+export function PortfolioEntry({ID, icon, name, numberOfShares, purchaseValue, triggerCount}: PortFolioEntryProps) {
+  const [loading, setLoading] = useState(true);
+  const [currentValue, setCurrentValue] = useState<number>(0.0);
+
+  const baseUrl = "https://www.alphavantage.co/query";
+
+  const params = new URLSearchParams();
+  params.append("function", "GLOBAL_QUOTE");
+  params.append("symbol", name);
+  
+
+  const db = useSQLiteContext();
+  
+
+    useEffect(() => {
+        async function getData(){
+            const results:any = await db.getAllSync("SELECT APIKey FROM User")
+            const apiKey = results[0].APIKey
+
+            params.append("apikey", apiKey);
+            const finalUrl = `${baseUrl}?${params.toString()}`;
+
+            fetch(finalUrl)
+                .then(res => res.json())
+                .then(data => {
+                // Extract the price
+                const CurrentValue:number = parseFloat(data["Global Quote"]["05. price"]);
+                console.log("CurrentValue:", CurrentValue);
+                console.log("numberOfShares:", numberOfShares);
+                console.log("purchaseValue:",purchaseValue);
+                setCurrentValue(CurrentValue)
+                setLoading(false)
+                })
+                .catch(err => {
+                console.error("Error fetching stock data:", err);
+                setLoading(false)
+                });
+    //   setLoading(false)
+    }
+
+    if(triggerCount != null && triggerCount > 0){
+        console.log(triggerCount)
+        getData()
+    }
+    else{
+        setLoading(false)
+    }
+  }, [triggerCount])
+
+
+  if (loading) {
+    return <Text>Loading</Text>
+  }
+
     return(
         <View style={styles.container}>
           <View style={{
@@ -17,7 +72,10 @@ export function PortfolioEntry({icon, name, numberOfShares, currentValue, totalC
             <Text style={styles.minorNumber}>{numberOfShares.toFixed(3)}</Text>
             <Text style={styles.minorNumber}>${currentValue.toFixed(2)}</Text>
           </View>
-          <PortfolioEntryChange totalChange={totalChange} percentChange={percentChange}></PortfolioEntryChange>
+          <PortfolioEntryChange 
+            totalChange={(currentValue*numberOfShares)-purchaseValue} 
+            percentChange={(((currentValue*numberOfShares)-purchaseValue)/purchaseValue)*100.0}
+            />
         </View>
     )
 }

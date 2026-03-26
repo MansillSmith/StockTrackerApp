@@ -8,7 +8,7 @@ import { PortfolioFormModal } from './PortfolioFormModal';
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { PortfolioItemData, RootStackParamList } from "../types";
 import { ActionButtons } from './ActionButtons';
-import { GetUnixTime } from './Utils';
+import { GetUnixTime } from '../utils/Utils';
 
 
 type Props = NativeStackScreenProps<RootStackParamList, "Portfolios">;
