@@ -42,7 +42,7 @@ export function ShareAccounts({route, navigation}: Props){
             const results = await db.getAllSync(getSharesQuery, [ID])
             const data: PortFolioEntryProps[] = results.map((row:any) => ({
                 ID: row.ID,
-                icon: tempImage,
+                icon: row.Icon,
                 purchaseValue: row.TotalAmount,
                 numberOfShares: row.TotalQuantity,
                 name: row.Ticker

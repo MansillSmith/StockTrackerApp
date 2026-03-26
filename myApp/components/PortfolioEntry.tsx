@@ -7,7 +7,7 @@ export type PortFolioEntryProps = { ID: number, icon:ImageSourcePropType, name:s
 
 export function PortfolioEntry({ID, icon, name, numberOfShares, purchaseValue, triggerCount}: PortFolioEntryProps) {
   const [loading, setLoading] = useState(true);
-  const [currentValue, setCurrentValue] = useState<number>(0.0);
+  const [currentValue, setCurrentValue] = useState<number | undefined>(undefined);
 
   const baseUrl = "https://www.alphavantage.co/query";
 
@@ -32,9 +32,7 @@ export function PortfolioEntry({ID, icon, name, numberOfShares, purchaseValue, t
                 .then(data => {
                 // Extract the price
                 const CurrentValue:number = parseFloat(data["Global Quote"]["05. price"]);
-                console.log("CurrentValue:", CurrentValue);
-                console.log("numberOfShares:", numberOfShares);
-                console.log("purchaseValue:",purchaseValue);
+                console.log("Calling API...")
                 setCurrentValue(CurrentValue)
                 setLoading(false)
                 })
@@ -55,9 +53,13 @@ export function PortfolioEntry({ID, icon, name, numberOfShares, purchaseValue, t
   }, [triggerCount])
 
 
-  if (loading) {
-    return <Text>Loading</Text>
-  }
+    if (loading) {
+        return <Text>Loading</Text>
+    }
+
+    const totalChange = currentValue !== undefined ? ((currentValue ?? 1)*numberOfShares)-purchaseValue : 0;
+    const percentChange = currentValue !== undefined ? ((((currentValue ?? 1)*numberOfShares)-purchaseValue)/purchaseValue)*100.0 : 0;
+    const imageUri = `data:image/png;base64,${icon}`;
 
     return(
         <View style={styles.container}>
@@ -67,14 +69,17 @@ export function PortfolioEntry({ID, icon, name, numberOfShares, purchaseValue, t
             justifyContent: 'center',
             marginRight: 10
             }}>
-            <Image source={icon} style={styles.icon}/>
+            <Image source={{uri: imageUri}} style={styles.icon} resizeMode="contain"/>
             <Text style={{fontWeight:'bold', fontSize:20}}>{name}</Text>
             <Text style={styles.minorNumber}>{numberOfShares.toFixed(3)}</Text>
-            <Text style={styles.minorNumber}>${currentValue.toFixed(2)}</Text>
+            <Text style={styles.minorNumber}>${purchaseValue.toFixed(2)}</Text>
+            <Text style={styles.minorNumber}>
+                {currentValue !== undefined ? `$${((currentValue ?? 1) * numberOfShares).toFixed(2)}`: ""}
+            </Text>
           </View>
           <PortfolioEntryChange 
-            totalChange={(currentValue*numberOfShares)-purchaseValue} 
-            percentChange={(((currentValue*numberOfShares)-purchaseValue)/purchaseValue)*100.0}
+            totalChange={totalChange} 
+            percentChange={percentChange}
             />
         </View>
     )

@@ -19,7 +19,7 @@ ORDER BY a.AccountTypeID, a.Name
 
 export const getSharesQuery = 
 `
-SELECT s.ID, s.Name, s.Ticker, t.TotalQuantity, t.TotalAmount
+SELECT s.ID, s.Name, s.Ticker, s.Icon, t.TotalQuantity, t.TotalAmount
 FROM (
 	SELECT 
 		s.ID,

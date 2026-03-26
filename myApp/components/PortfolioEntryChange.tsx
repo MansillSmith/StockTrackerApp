@@ -19,7 +19,7 @@ export function PortfolioEntryChange({totalChange, percentChange}: PortfolioEntr
                 marginRight: 5
             }
         ]}>
-            <Text style={{fontSize:25, marginLeft: 5}}>{totalChange > 0 ? "+" : "-"}</Text>
+            <Text style={{fontSize:25, marginLeft: 5}}>{totalChange > 0 ? "+" : totalChange < 0 ? "-" : "="}</Text>
             <View style={{
                 marginLeft: 'auto',
                 marginRight: 15
