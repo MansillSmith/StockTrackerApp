@@ -10,7 +10,14 @@ export function PortfolioAccount({ID, Name, AccountTypeID, AccountBalance}: Port
     const navigation = useNavigation<NavProp>();
     return (
         <TouchableOpacity
-            onPress={() => navigation.navigate("ShareAccounts", {ID: ID})}
+            onPress={() => {
+                if (AccountTypeID === 2){
+                    navigation.navigate("ShareAccounts", {ID: ID})
+                }
+                else{
+                    navigation.navigate("FinancialAccount", {ID: ID})
+                }
+            }}
         >
             <View key={ID} style={globalStyles.container}>
                 <Text style={{width:'80%'}}>{Name}</Text>

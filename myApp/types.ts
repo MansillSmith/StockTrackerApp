@@ -4,6 +4,7 @@ export type RootStackParamList = {
   PortfolioAccounts: { ID: number };
   // PortfolioID: { ID: number };
   ShareAccounts: {ID: number};
+  FinancialAccount: {ID: number};
 };
 
 export type PortfolioAccountProp = {

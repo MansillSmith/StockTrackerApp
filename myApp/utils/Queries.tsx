@@ -35,3 +35,23 @@ FROM (
 ) t
 INNER JOIN Stocks s ON t.ID = s.ID
 `
+
+export const getFinancialAccountTransactions = 
+`
+SELECT je.ID as JournalEntryID, je.TimestampUNIX, je.Description, jl.Debit/100.0 as Debit, jl.Credit/100.0 as Credit
+FROM Accounts a
+INNER JOIN JournalLines jl on jl.AccountID = a.ID
+INNER JOIN JournalEntries je on je.ID = jl.JournalEntryID
+WHERE a.ID = ?
+ORDER BY TimestampUNIX DESC
+`
+
+export const getFinancialAcccountDetails = 
+`
+SELECT a.ID, a.Name, nbt.Name as AccountType
+FROM Accounts a
+INNER JOIN AccountTypes accT on a.AccountTypeID = accT.ID
+INNER JOIN AccountingAccountTypes aat on aat.ID = acct.AccountingAccountTypeID
+INNER JOIN NormalBalanceTypes nbt on nbt.ID = aat.NormalBalanceTypeID
+WHERE a.ID = ?
+`
