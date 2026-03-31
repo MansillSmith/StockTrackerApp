@@ -5,7 +5,9 @@ import React, { useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { FormInput } from "./FormInput";
 import { FormPicker } from "./FormPicker";
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { DatePicker } from "./DatePicker";
+import { GetUnixTime } from "../utils/Utils";
+
 
 
 type NamedItem = {ID: number, Name:string}
@@ -40,11 +42,21 @@ export function TransactionModal({visible, portfolioID, onClose, onSubmit}: Tran
         }
     }
 
-    function saveWalletTopUp(walletTopUp:WalletTopUp){
+    async function saveWalletTopUp(walletTopUp:WalletTopUp){
         // add a new journal entry
-        const addJournalEntryQuery = `INSERT INTO JournalEntries (ID, TimestampUNIX, Description, JournalEntryTypeID)`
-        // credit equity
-        // debit wallet
+        let journalEntryID:number = 0
+        if(walletTopUp.Amount !== undefined && walletTopUp.Description !== undefined && walletTopUp.Date !== undefined && walletTopUp.EquityAccountID !== undefined && walletTopUp.WalletAccountID !== undefined){
+            const addJournalEntryQuery = `INSERT INTO JournalEntries (TimestampUNIX, Description, JournalEntryTypeID) VALUES (?, ?, ?)`
+            const results = await db.runAsync(addJournalEntryQuery, [GetUnixTime(walletTopUp.Date.getTime()), walletTopUp.Description, 1])
+            journalEntryID = results.lastInsertRowId
+
+            // credit equity
+            // debit wallet
+            if(journalEntryID !== 0){
+                const addJournalLinesQuery = `INSERT INTO JournalLines (JournalEntryID, AccountID, Debit, Credit, ReportingDebit, ReportingCredit) VALUES (?,?,?,?,?,?), (?,?,?,?,?,?)`
+                const results = await db.runAsync(addJournalLinesQuery, [journalEntryID, walletTopUp.WalletAccountID, walletTopUp.Amount, null, "TODO", null, journalEntryID, walletTopUp.EquityAccountID, null, walletTopUp.Amount, null, "TODO"])
+            }
+        }
     }
 
     useEffect(() => {
@@ -107,7 +119,7 @@ export function TransactionModal({visible, portfolioID, onClose, onSubmit}: Tran
                                 setSelectedEntryTypeID(itemValue);
                                 switch (itemValue) {
                                     case 1:
-                                        setTransactionData({ type: "WalletTopUp", Amount: undefined, WalletAccountID: undefined, EquityAccountID: undefined, Description: undefined })
+                                        setTransactionData({ type: "WalletTopUp", Amount: undefined, WalletAccountID: undefined, EquityAccountID: undefined, Description: undefined, Date:undefined })
                                         break
                                     case 2:
                                         setTransactionData({ type: "StockBuy" })
@@ -160,10 +172,10 @@ export function TransactionModal({visible, portfolioID, onClose, onSubmit}: Tran
                                 }}
                             />
                             <DatePicker 
-                                date={transactionData?.Date?.toLocaleDateString()} 
+                                dateString={transactionData?.Date?.toLocaleString()} 
                                 isVisible={dateModalVisible}
-                                setVisible={(e) => {setDateModalVisible(e)}}
-                                setDate = {(e:any) => {
+                                setVisible={(isVisible:boolean) => {setDateModalVisible(isVisible)}}
+                                setDate = {(e:Date) => {
                                     console.log("setting date to ", e)
                                     setTransactionData(prev => {
                                         if (!prev || prev.type !== "WalletTopUp") return prev
@@ -229,32 +241,3 @@ export function TransactionModal({visible, portfolioID, onClose, onSubmit}: Tran
 //     )
 // }
 
-function DatePicker({date, setDate, isVisible, setVisible} :any){
-    return (
-    <View style={{marginBottom:10}}>
-      <TouchableOpacity onPress={() => setVisible(true)}>
-        <TextInput
-          placeholder="Select date"
-          value={date}
-          editable={false} // prevents keyboard
-          pointerEvents="none"
-          style={{
-            borderWidth: 1,
-            padding: 12,
-            borderRadius: 8,
-          }}
-        />
-      </TouchableOpacity>
-
-      <DateTimePickerModal
-        isVisible={isVisible}
-        mode="date"
-        onConfirm={(selectedDate) => {
-          setDate(selectedDate);
-          setVisible(false);
-        }}
-        onCancel={() => setVisible(false)}
-      />
-    </View>
-  );
-}
