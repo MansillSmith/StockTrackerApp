@@ -11,6 +11,7 @@ import { globalStyles } from './styles';
 import { ActionButtons } from './components/ActionButtons';
 import { ShareAccounts } from './components/ShareAccounts';
 import { FinancialAccount } from './components/FinancialAccount';
+import { CurrencyProvider } from './components/CurrencyProvider';
 // import { useEffect, useState } from 'react';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -24,17 +25,19 @@ export default function App() {
 
   return (
        <SQLiteProvider
-          databaseName="db.db"
-          assetSource={{ assetId: require('./assets/db.db') }}
+          databaseName="db2.db"
+          assetSource={{ assetId: require('./assets/db2.db') }}
         >
-        <NavigationContainer>
-          <Stack.Navigator>
-            <Stack.Screen name="Portfolios" component={Portfolios}/>
-            <Stack.Screen name="PortfolioAccounts" component={PortfolioAccounts} options={{title: "Accounts"}}/>
-            <Stack.Screen name="ShareAccounts" component={ShareAccounts}/>
-            <Stack.Screen name="FinancialAccount" component={FinancialAccount}/>
-          </Stack.Navigator>     
-        </NavigationContainer>
+          <CurrencyProvider>
+            <NavigationContainer>
+              <Stack.Navigator>
+                <Stack.Screen name="Portfolios" component={Portfolios}/>
+                <Stack.Screen name="PortfolioAccounts" component={PortfolioAccounts} options={{title: "Accounts"}}/>
+                <Stack.Screen name="ShareAccounts" component={ShareAccounts}/>
+                <Stack.Screen name="FinancialAccount" component={FinancialAccount}/>
+              </Stack.Navigator>     
+            </NavigationContainer>
+          </CurrencyProvider>
       </SQLiteProvider>
   );
 }

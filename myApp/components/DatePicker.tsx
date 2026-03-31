@@ -1,6 +1,6 @@
 import React from "react";
 import { TextInput, TouchableOpacity, View } from "react-native";
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+// import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 export type DatePickerProps = {dateString: string | undefined, setDate: (date:Date) => void, isVisible:boolean, setVisible: (isVisible:boolean) => void}
 export function DatePicker({dateString, setDate, isVisible, setVisible} :DatePickerProps){
@@ -20,7 +20,7 @@ export function DatePicker({dateString, setDate, isVisible, setVisible} :DatePic
         />
       </TouchableOpacity>
 
-      <DateTimePickerModal
+      {/* <DateTimePickerModal
         isVisible={isVisible}
         mode="datetime"
         onConfirm={(selectedDate) => {
@@ -28,7 +28,7 @@ export function DatePicker({dateString, setDate, isVisible, setVisible} :DatePic
           setVisible(false);
         }}
         onCancel={() => setVisible(false)}
-      />
+      /> */}
     </View>
   );
 }

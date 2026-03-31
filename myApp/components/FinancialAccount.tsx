@@ -6,6 +6,7 @@ import { useEffect, useLayoutEffect, useState } from "react";
 import { getFinancialAcccountDetails, getFinancialAccountTransactions } from "../utils/Queries";
 import { FinancialAccountEntry, FinancialAccountEntryProps } from "./FinancialAccountEntry";
 import { GetDate, GetDateString } from "../utils/Utils";
+import { useCurrencies } from "../hooks";
 
 type Props = NativeStackScreenProps<
   RootStackParamList,
@@ -15,6 +16,8 @@ type Props = NativeStackScreenProps<
 export type FinancialAccountTransactionDetails = {ID: number, date:Date, description:string, debit:number, credit:number}
 export type FinancialAccountDetails = { ID: number, Name:string, AccountType:string } 
 export function FinancialAccount({route, navigation}: Props){
+    const { currencies, setCurrencies } = useCurrencies();
+
     const [accountEntries, setAccountEntries] = useState<FinancialAccountTransactionDetails[]>([]);
     const [accountDetails, setAccountDetails] = useState<FinancialAccountDetails>();
 

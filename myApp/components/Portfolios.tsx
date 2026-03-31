@@ -6,9 +6,11 @@ import { globalStyles } from '../styles';
 import { PortfolioFormModal } from './PortfolioFormModal';
 
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { PortfolioItemData, RootStackParamList } from "../types";
+import { Currencies, Currency, CurrencyContext, PortfolioItemData, RootStackParamList } from "../types";
 import { ActionButtons } from './ActionButtons';
 import { GetUnixTime } from '../utils/Utils';
+import { useCurrencies } from '../hooks';
+import { CurrencyProvider } from './CurrencyProvider';
 
 
 type Props = NativeStackScreenProps<RootStackParamList, "Portfolios">;
@@ -55,18 +57,19 @@ export function Portfolios({ navigation }: Props){
     }, [navigation]);
 
     useEffect(() => {
-        async function getData(){
-            const results = await db.getAllAsync("SELECT ID, Name FROM Portfolios ORDER BY DisplayOrder")
-            console.log(results)
+        async function getPortfolioData(){
+            console.log(await db.getAllAsync("PRAGMA table_info(Portfolios)"))
+            const results = await db.getAllAsync("SELECT ID, Name, DefaultCurrencyID FROM Portfolios ORDER BY DisplayOrder")
             const data: PortfolioItemData[] = results.map((row: any) =>({
                 ID: row.ID,
-                Name: row.Name
+                Name: row.Name,
+                DefaultCurrencyID: row.DefaultCurrencyID
             }));
 
             setPortfolioEntries(data)
         }
         
-        getData()
+        getPortfolioData()
     }, []);
 
     return(

@@ -7,6 +7,7 @@ import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 type NavProp = NativeStackNavigationProp<RootStackParamList>;
 
 export function PortfolioAccount({ID, Name, AccountTypeID, AccountBalance}: PortfolioAccountProp){
+
     const navigation = useNavigation<NavProp>();
     return (
         <TouchableOpacity
