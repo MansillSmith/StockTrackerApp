@@ -1,10 +1,11 @@
-import { Modal, View, Pressable, Text } from "react-native"
+import { Modal, View, Pressable, Text, TextInput, TouchableOpacity } from "react-native"
 import { globalStyles } from "../styles";
 import { Picker } from "@react-native-picker/picker";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { FormInput } from "./FormInput";
 import { FormPicker } from "./FormPicker";
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
 
 
 type NamedItem = {ID: number, Name:string}
@@ -13,7 +14,9 @@ type WalletTopUp = {
     type: "WalletTopUp",
     Amount:number | undefined,
     WalletAccountID: number | undefined
-    EquityAccountID: number | undefined
+    EquityAccountID: number | undefined,
+    Description: string | undefined,
+    Date: Date | undefined
 }
 type StockBuy = { type: "StockBuy"}
 type TransactionData = WalletTopUp | StockBuy
@@ -27,6 +30,8 @@ export function TransactionModal({visible, portfolioID, onClose, onSubmit}: Tran
     const [walletAccounts, setWalletAccounts] = useState<NamedItem[]>([]);
     const [equityAccounts, setEquityAccounts] = useState<NamedItem[]>([]);
 
+    const [dateModalVisible, setDateModalVisible] = useState<boolean>(false);
+
     const db = useSQLiteContext();
 
     function saveTransactionData(data:TransactionData){
@@ -36,6 +41,8 @@ export function TransactionModal({visible, portfolioID, onClose, onSubmit}: Tran
     }
 
     function saveWalletTopUp(walletTopUp:WalletTopUp){
+        // add a new journal entry
+        const addJournalEntryQuery = `INSERT INTO JournalEntries (ID, TimestampUNIX, Description, JournalEntryTypeID)`
         // credit equity
         // debit wallet
     }
@@ -100,7 +107,7 @@ export function TransactionModal({visible, portfolioID, onClose, onSubmit}: Tran
                                 setSelectedEntryTypeID(itemValue);
                                 switch (itemValue) {
                                     case 1:
-                                        setTransactionData({ type: "WalletTopUp", Amount: undefined, WalletAccountID: undefined, EquityAccountID: undefined })
+                                        setTransactionData({ type: "WalletTopUp", Amount: undefined, WalletAccountID: undefined, EquityAccountID: undefined, Description: undefined })
                                         break
                                     case 2:
                                         setTransactionData({ type: "StockBuy" })
@@ -136,10 +143,12 @@ export function TransactionModal({visible, portfolioID, onClose, onSubmit}: Tran
                                     }
                                 })
                             }}/>
-                            <FormInput 
-                                label="Amount" 
-                                getter={transactionData?.Amount} 
-                                setter={(e) => {
+                            <TextInput 
+                                style = {[globalStyles.input, {marginBottom:10}]}
+                                placeholder="Top up Amount"
+                                value={transactionData?.Amount?.toLocaleString('en-NZ', {style: "currency", currency: "NZD"})}
+                                keyboardType="numeric"
+                                onChangeText={(e:any) => {
                                     setTransactionData(prev => {
                                         if (!prev || prev.type !== "WalletTopUp") return prev
 
@@ -149,12 +158,41 @@ export function TransactionModal({visible, portfolioID, onClose, onSubmit}: Tran
                                         }
                                     })
                                 }}
-                                placeholder="Top up amount" 
-                                tiKeyboardType="numeric" 
+                            />
+                            <DatePicker 
+                                date={transactionData?.Date?.toLocaleDateString()} 
+                                isVisible={dateModalVisible}
+                                setVisible={(e) => {setDateModalVisible(e)}}
+                                setDate = {(e:any) => {
+                                    console.log("setting date to ", e)
+                                    setTransactionData(prev => {
+                                        if (!prev || prev.type !== "WalletTopUp") return prev
+
+                                        return {
+                                            ...prev,
+                                            Date: e
+                                        }
+                                    })
+                                }}
+                            />
+                            <TextInput 
+                                style = {[globalStyles.input, {marginBottom:10}]}
+                                placeholder="Description"
+                                value={transactionData?.Description}
+                                keyboardType="default"
+                                onChangeText={(e:any) => {
+                                    setTransactionData(prev => {
+                                        if (!prev || prev.type !== "WalletTopUp") return prev
+
+                                        return {
+                                            ...prev,
+                                            Description: e
+                                        }
+                                    })
+                                }}
                             />
                         </>
                     }
-
                     <View style={[{flexDirection:'row'}]}>
                         <Pressable style={[globalStyles.smallButton, globalStyles.wideButton]}
                             onPress={() => {
@@ -190,3 +228,33 @@ export function TransactionModal({visible, portfolioID, onClose, onSubmit}: Tran
 //         <FormInput label="Amount" getter={amount} setter={(e) => {setAmount(e ? parseFloat(e) : undefined)}} placeholder="Top up amount" tiKeyboardType="numeric" />
 //     )
 // }
+
+function DatePicker({date, setDate, isVisible, setVisible} :any){
+    return (
+    <View style={{marginBottom:10}}>
+      <TouchableOpacity onPress={() => setVisible(true)}>
+        <TextInput
+          placeholder="Select date"
+          value={date}
+          editable={false} // prevents keyboard
+          pointerEvents="none"
+          style={{
+            borderWidth: 1,
+            padding: 12,
+            borderRadius: 8,
+          }}
+        />
+      </TouchableOpacity>
+
+      <DateTimePickerModal
+        isVisible={isVisible}
+        mode="date"
+        onConfirm={(selectedDate) => {
+          setDate(selectedDate);
+          setVisible(false);
+        }}
+        onCancel={() => setVisible(false)}
+      />
+    </View>
+  );
+}
