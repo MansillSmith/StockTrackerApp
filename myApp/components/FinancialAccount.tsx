@@ -1,6 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../types";
-import { View } from "react-native";
+import { View, Text } from "react-native";
 import { useSQLiteContext } from "expo-sqlite";
 import { useEffect, useLayoutEffect, useState } from "react";
 import { getFinancialAcccountDetails, getFinancialAccountTransactions } from "../utils/Queries";
@@ -12,29 +12,29 @@ type Props = NativeStackScreenProps<
   "FinancialAccount"
 >;
 
-type FinancialAccountDetails = { ID: number, Name:string, AccountType:string } 
+export type FinancialAccountTransactionDetails = {ID: number, date:Date, description:string, debit:number, credit:number}
+export type FinancialAccountDetails = { ID: number, Name:string, AccountType:string } 
 export function FinancialAccount({route, navigation}: Props){
-    const [accountEntries, setAccountEntries] = useState<FinancialAccountEntryProps[]>([]);
+    const [accountEntries, setAccountEntries] = useState<FinancialAccountTransactionDetails[]>([]);
     const [accountDetails, setAccountDetails] = useState<FinancialAccountDetails>();
 
     const db = useSQLiteContext();
-    const { ID } = route.params
+    const { ID, AccountBalance } = route.params
 
     useLayoutEffect(() => {
-        if (!accountDetails) return;
-
+        // if (!accountDetails) return;
         navigation.setOptions({
-            title: accountDetails?.Name ?? "Account"
+            title: accountDetails?.Name || "Account"
         });
-    }, [accountDetails]);
+    }, [accountDetails, navigation]);
 
     useEffect(() => {
         async function getTransactions(){
             const results = await db.getAllSync(getFinancialAccountTransactions, [ID])
-            console.log("Date Is", GetDate(1753744200))
-            console.log("Formatted date is:", GetDateString(GetDate(1753744200)))
-            console.log("RESULTS:", results);
-            const data: FinancialAccountEntryProps[] = results.map((row:any) => ({
+            // console.log("Date Is", GetDate(1753744200))
+            // console.log("Formatted date is:", GetDateString(GetDate(1753744200)))
+            // console.log("RESULTS:", results);
+            const data: FinancialAccountTransactionDetails[] = results.map((row:any) => ({
                 ID: row.JournalEntryID,
                 date: GetDate(row.TimestampUNIX),
                 description: row.Description,
@@ -50,19 +50,43 @@ export function FinancialAccount({route, navigation}: Props){
             const row:any = results[0]
             const data: FinancialAccountDetails = {
                 ID: row.ID,
-                Name: row.name,
+                Name: row.Name,
                 AccountType: row.AccountType
             }
             setAccountDetails(data)
         }
-
+        // console.log(AccountBalance)
         getTransactions()
+        getAccountDetails()
     }, [])
+
+    if (!accountDetails){
+        return(<Text>Loading</Text>)
+    }
+
+    if(accountEntries.length ===0 ){
+        return (<Text>No Entries...</Text>)
+    }
 
     return (
         <View>
+            {AccountBalance !== null && AccountBalance !== undefined && 
+                <View style={{
+                    flexDirection:'row',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 5,
+                    padding: 10
+                }}>
+                    <Text style={{fontWeight:'bold'}}>Balance:</Text>
+                    <Text style={{fontWeight:'bold'}}> {AccountBalance.toLocaleString('en-NZ', {
+                        style: "currency",
+                        currency: "NZD"
+                    })}</Text>
+                </View>
+            }
             {accountEntries.map((i) =>(
-                <FinancialAccountEntry key={i.ID} {...i}/>
+                <FinancialAccountEntry key={i.ID} transactionDetails={i} accountDetails={accountDetails}/>
             ))}
         </View>
     )

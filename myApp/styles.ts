@@ -26,5 +26,8 @@ export const globalStyles = StyleSheet.create({
     borderColor: '#ccc',
     padding: 12,
     borderRadius: 8,
+  },
+  wideButton:{
+    width:60
   }
 });

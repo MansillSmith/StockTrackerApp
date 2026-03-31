@@ -64,8 +64,11 @@ export function ShareAccounts({route, navigation}: Props){
                 <View style={{
                     backgroundColor:'#CCC',
                     width:'100%',
-                    height: '50%'
+                    height: '50%',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                 }}>
+                    <Text style={{fontWeight:'bold'}}>TODO: Chart Here</Text>
                 </View>
                 {getShareAccounts.map((i, index) => (
                     <PortfolioEntry key={i.ID} {...i} triggerCount={getTriggerCount}/>

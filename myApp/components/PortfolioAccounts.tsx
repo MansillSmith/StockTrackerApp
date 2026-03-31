@@ -1,7 +1,7 @@
 // import SQLite from 'react-native-sqlite-storage';
 // import * as SQLite from 'expo-sqlite';
 import { useEffect, useLayoutEffect, useState} from 'react';
-import { View, Text } from "react-native";
+import { View, Text, Pressable } from "react-native";
 
 import { DB_NAME } from '../config/db';
 // import { PortfolioEntry, PortFolioEntryProps } from './PortfolioEntry';
@@ -17,6 +17,7 @@ import { PortfolioAccount } from './PortfolioAccount';
 import { ActionButtons } from './ActionButtons';
 
 import { getAccountsQuery } from '../utils/Queries';
+import { TransactionModal } from './TransactionModal';
 
 type Props = NativeStackScreenProps<
   RootStackParamList,
@@ -24,7 +25,8 @@ type Props = NativeStackScreenProps<
 >;
 
 export function PortfolioAccounts({ route, navigation }: Props) {
-    const [modalVisible, setModalVisible] = useState<Boolean>(false)
+    const [addAccountModalVisible, setaddAccountModalVisible] = useState<Boolean>(false)
+    const [transactionModalVisible, setTransactionModalVisble] = useState<boolean>(false);
     const [portfolioAccounts, setPortfolioAccounts] = useState<PortfolioAccountProp[]>([]);
 
     const { ID } = route.params
@@ -34,11 +36,19 @@ export function PortfolioAccounts({ route, navigation }: Props) {
     useLayoutEffect(() => {
         navigation.setOptions({
         headerRight: () => (
+            <>
             <ActionButtons
-            onAdd={() => setModalVisible(true)}
-            onEdit={() => {}}
-            onRemove={() => {}}
+                onAdd={() => setaddAccountModalVisible(true)}
+                onEdit={() => {}}
+                onRemove={() => {}}
             />
+            <Pressable onPress={() => {
+                setTransactionModalVisble(true)
+            }} style={globalStyles.smallButton}>
+                <Text>📁</Text>
+            </Pressable>
+            </>
+
         ),
         });
     }, [navigation]);
@@ -74,6 +84,12 @@ export function PortfolioAccounts({ route, navigation }: Props) {
             {portfolioAccounts.map((i, index) => (
                 <PortfolioAccount key={i.ID} {...i}/>
             ))}
+        <TransactionModal
+            visible={transactionModalVisible}
+            portfolioID={ID}
+            onClose={() => setTransactionModalVisble(false)}
+            onSubmit={() => {}}
+        />
         </View>
     )
 }

@@ -2,6 +2,7 @@ import { Modal, View, Text, TextInput, Pressable, StyleSheet } from "react-nativ
 import { useState } from "react";
 import { globalStyles } from "../styles";
 import { PortfolioItemData } from "../types";
+import { FormInput } from "./FormInput";
 
 export type PortfolioFormModalProps = {visible: boolean, portfolioItemData?:PortfolioItemData, isAdd:boolean, onClose: () => void, onSubmit: (name:string) => void}
 
@@ -18,10 +19,10 @@ export function PortfolioFormModal({ visible, portfolioItemData, isAdd, onClose,
                 backgroundColor: "rgba(0,0,0,0.5)"
             }}>
                 <View style={{
-                backgroundColor: "white",
-                padding: 20,
-                borderRadius: 10,
-                width: "80%"
+                    backgroundColor: "white",
+                    padding: 20,
+                    borderRadius: 10,
+                    width: "80%"
                 }}>
                     <Text style={localStyles.modelObject}>
                         { isAdd ? "Add " : "Edit"} Porfolio
@@ -44,7 +45,7 @@ export function PortfolioFormModal({ visible, portfolioItemData, isAdd, onClose,
 
                     {/* Save close buttons*/}
                     <View style={[localStyles.modelObject, {flexDirection:'row'}]}>
-                        <Pressable style={[globalStyles.smallButton, localStyles.wideButton]}
+                        <Pressable style={[globalStyles.smallButton, globalStyles.wideButton]}
                             onPress={() => {
                             onSubmit(name);
                             setName("");
@@ -53,7 +54,7 @@ export function PortfolioFormModal({ visible, portfolioItemData, isAdd, onClose,
                         >
                             <Text>Save</Text>
                         </Pressable>
-                        <Pressable style={[globalStyles.smallButton, localStyles.wideButton]} onPress={onClose}>
+                        <Pressable style={[globalStyles.smallButton, globalStyles.wideButton]} onPress={onClose}>
                             <Text>Cancel</Text>
                         </Pressable>
                     </View>
@@ -63,30 +64,27 @@ export function PortfolioFormModal({ visible, portfolioItemData, isAdd, onClose,
     )
 }
 
-type FormInputProps = {label:string, getter:any, setter: (text:string) => void, tiKeyboardType?:any, placeholder?:string}
-function FormInput({label, getter, setter, tiKeyboardType="default", placeholder}: FormInputProps){
-    return (
-        <View style={{
-            flexDirection:'row',
-            alignContent:'center',
-            alignItems: 'center',
-            width:'100%'
-        }}>
-            <Text style={{width:'20%'}}>{label}</Text>
-            <TextInput style={[globalStyles.input, localStyles.modelObject, {width:'80%'}]}
-                placeholder={placeholder || ""}
-                value={getter}
-                keyboardType={tiKeyboardType}
-                onChangeText={setter}
-            />
-        </View>
-    )
-}
+// type FormInputProps = {label:string, getter:any, setter: (text:string) => void, tiKeyboardType?:any, placeholder?:string}
+// function FormInput({label, getter, setter, tiKeyboardType="default", placeholder}: FormInputProps){
+//     return (
+//         <View style={{
+//             flexDirection:'row',
+//             alignContent:'center',
+//             alignItems: 'center',
+//             width:'100%'
+//         }}>
+//             <Text style={{width:'20%'}}>{label}</Text>
+//             <TextInput style={[globalStyles.input, localStyles.modelObject, {width:'80%'}]}
+//                 placeholder={placeholder || ""}
+//                 value={getter}
+//                 keyboardType={tiKeyboardType}
+//                 onChangeText={setter}
+//             />
+//         </View>
+//     )
+// }
 
 export const localStyles = StyleSheet.create({
-    wideButton:{
-        width:60
-    },
     modelObject:{
         marginTop:10,
         marginBottom:10

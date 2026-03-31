@@ -15,7 +15,7 @@ export function PortfolioAccount({ID, Name, AccountTypeID, AccountBalance}: Port
                     navigation.navigate("ShareAccounts", {ID: ID})
                 }
                 else{
-                    navigation.navigate("FinancialAccount", {ID: ID})
+                    navigation.navigate("FinancialAccount", {ID: ID, AccountBalance: AccountBalance})
                 }
             }}
         >
