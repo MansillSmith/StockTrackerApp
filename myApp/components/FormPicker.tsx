@@ -1,4 +1,4 @@
-// import { Picker } from '@react-native-picker/picker'
+import { Picker } from '@react-native-picker/picker'
 import { View, Text } from 'react-native'
 
 export function FormPicker( { label, items, getter, setter}:any){
@@ -10,7 +10,7 @@ export function FormPicker( { label, items, getter, setter}:any){
             width:'100%'
         }}>
             <Text style={{width:'20%'}}>{label}</Text>
-            {/* <Picker style={{height:50, width:'80%'}}
+            <Picker style={{height:50, width:'80%'}}
                 selectedValue={getter}
                 onValueChange={setter}
             >
@@ -19,7 +19,7 @@ export function FormPicker( { label, items, getter, setter}:any){
                         <Picker.Item key={i.ID} label={i.Name} value={i.ID}/>
                     ))
                 }
-            </Picker> */}
+            </Picker>
         </View>
     )
 }

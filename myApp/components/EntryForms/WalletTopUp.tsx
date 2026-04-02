@@ -90,7 +90,7 @@ export function WalletTopUp({ route, navigation }: Props){
     return (
          <View>
             <FormPicker label="Wallet" items={walletAccounts} getter={formWalletAccountID} setter={(e:any) => {setFormWalletAccountID(e)}}/>
-            {/* <FormPicker label="Equity" items={equityAccounts} getter={formEquityAccountID} setter={(e:any) => {setFormEquityAccountID(e)}}/> */}
+            <FormPicker label="Equity" items={equityAccounts} getter={formEquityAccountID} setter={(e:any) => {setFormEquityAccountID(e)}}/>
             <TextInput 
                 style = {[globalStyles.input, {marginBottom:10}]}
                 placeholder="Top up Amount"
