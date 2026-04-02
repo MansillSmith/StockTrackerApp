@@ -1,7 +1,7 @@
 // import SQLite from 'react-native-sqlite-storage';
 // import * as SQLite from 'expo-sqlite';
-import { useEffect, useLayoutEffect, useState} from 'react';
-import { View, Text, Pressable } from "react-native";
+import { useEffect, useLayoutEffect, useState, useRef} from 'react';
+import { View, Text, Pressable, Animated, Dimensions, StyleSheet, TouchableOpacity } from "react-native";
 
 import { DB_NAME } from '../config/db';
 // import { PortfolioEntry, PortFolioEntryProps } from './PortfolioEntry';
@@ -17,17 +17,20 @@ import { PortfolioAccount } from './PortfolioAccount';
 import { ActionButtons } from './ActionButtons';
 
 import { getAccountsQuery } from '../utils/Queries';
-import { TransactionModal } from './TransactionModal';
+// import { TransactionModal } from './TransactionModal';
 
 type Props = NativeStackScreenProps<
   RootStackParamList,
   "PortfolioAccounts"
 >;
 
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
 export function PortfolioAccounts({ route, navigation }: Props) {
     const [addAccountModalVisible, setaddAccountModalVisible] = useState<Boolean>(false)
-    const [transactionModalVisible, setTransactionModalVisble] = useState<boolean>(false);
+    const [isOpenMenu, setIsOpenMenu] = useState<boolean>(false);
     const [portfolioAccounts, setPortfolioAccounts] = useState<PortfolioAccountProp[]>([]);
+    const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
 
     const { ID } = route.params
 
@@ -43,9 +46,9 @@ export function PortfolioAccounts({ route, navigation }: Props) {
                 onRemove={() => {}}
             />
             <Pressable onPress={() => {
-                setTransactionModalVisble(true)
+                toggleMenu()
             }} style={globalStyles.smallButton}>
-                <Text>📁</Text>
+                <Text>☰</Text>
             </Pressable>
             </>
 
@@ -74,6 +77,23 @@ export function PortfolioAccounts({ route, navigation }: Props) {
     }, []
     )
 
+    const toggleMenu = () => {
+        if (isOpenMenu) {
+        Animated.timing(slideAnim, {
+            toValue: SCREEN_WIDTH,
+            duration: 250,
+            useNativeDriver: true,
+        }).start(() => setIsOpenMenu(false));
+        } else {
+        setIsOpenMenu(true);
+            Animated.timing(slideAnim, {
+                toValue: SCREEN_WIDTH - 300, // width of menu
+                duration: 250,
+                useNativeDriver: true,
+        }).start();
+        }
+    };
+
     return (
         <View style={{
           width: '100%',
@@ -84,12 +104,58 @@ export function PortfolioAccounts({ route, navigation }: Props) {
             {portfolioAccounts.map((i, index) => (
                 <PortfolioAccount key={i.ID} {...i}/>
             ))}
-        <TransactionModal
+        <Animated.View
+            style={[
+            styles.menu,
+            { transform: [{ translateX: slideAnim }] },
+            ]}
+        >
+            <TouchableOpacity 
+                style={styles.item}
+                onPress={() => {
+                    navigation.navigate("WalletTopUp", {PortfolioID: ID})
+                }}
+            >
+                <Text>Wallet Top Up</Text>
+            </TouchableOpacity>
+            <Text style={styles.item}>Button 2</Text>
+            <Text style={styles.item}>Button 3</Text>
+
+            <TouchableOpacity onPress={toggleMenu}>
+                <Text style={{ marginTop: 20 }}>Close</Text>
+            </TouchableOpacity>
+        </Animated.View>
+
+        {/* <TransactionModal
             visible={transactionModalVisible}
             portfolioID={ID}
             onClose={() => setTransactionModalVisble(false)}
             onSubmit={() => {}}
-        />
+        /> */}
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+  button: {
+    marginTop: 60,
+    marginLeft: 20,
+    backgroundColor: 'black',
+    padding: 10,
+    borderRadius: 6,
+  },
+  menu: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: 220,
+    height: '100%',
+    backgroundColor: '#f2f2f2',
+    padding: 20,
+    elevation: 5,
+  },
+  item: {
+    fontSize: 18,
+    marginVertical: 10,
+  },
+});

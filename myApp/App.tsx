@@ -12,6 +12,7 @@ import { ActionButtons } from './components/ActionButtons';
 import { ShareAccounts } from './components/ShareAccounts';
 import { FinancialAccount } from './components/FinancialAccount';
 import { CurrencyProvider } from './components/CurrencyProvider';
+import { WalletTopUp } from './components/EntryForms/WalletTopUp';
 // import { useEffect, useState } from 'react';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -35,6 +36,8 @@ export default function App() {
                 <Stack.Screen name="PortfolioAccounts" component={PortfolioAccounts} options={{title: "Accounts"}}/>
                 <Stack.Screen name="ShareAccounts" component={ShareAccounts}/>
                 <Stack.Screen name="FinancialAccount" component={FinancialAccount}/>
+
+                <Stack.Screen name="WalletTopUp" component={WalletTopUp}/>
               </Stack.Navigator>     
             </NavigationContainer>
           </CurrencyProvider>

@@ -7,6 +7,7 @@ export type RootStackParamList = {
   // PortfolioID: { ID: number };
   ShareAccounts: {ID: number};
   FinancialAccount: {ID: number, AccountBalance:number};
+  WalletTopUp: {PortfolioID: number};
 };
 
 export type PortfolioAccountProp = {
@@ -16,7 +17,7 @@ export type PortfolioAccountProp = {
   AccountBalance: number
 }
 
-export type PortfolioItemData = {ID: number, Name:string, DefaultCurrencyID: number}
+export type PortfolioItemData = {ID: number, Name:string}
 
 export type FormInputProps = {label:string, getter:any, setter: (text:string) => void, tiKeyboardType?:any, placeholder?:string}
 

@@ -16,6 +16,9 @@ type Props = NativeStackScreenProps<
 export type FinancialAccountTransactionDetails = {ID: number, date:Date, description:string, debit:number, credit:number}
 export type FinancialAccountDetails = { ID: number, Name:string, AccountType:string } 
 export function FinancialAccount({route, navigation}: Props){
+    // need to get the currency of the portfolio
+    // check if the currencies are different
+
     const { currencies, setCurrencies } = useCurrencies();
 
     const [accountEntries, setAccountEntries] = useState<FinancialAccountTransactionDetails[]>([]);
