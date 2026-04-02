@@ -46,6 +46,7 @@ export function PortfolioAccounts({ route, navigation }: Props) {
                 onRemove={() => {}}
             />
             <Pressable onPress={() => {
+                console.log("clicked")
                 toggleMenu()
             }} style={globalStyles.smallButton}>
                 <Text>☰</Text>
@@ -78,20 +79,17 @@ export function PortfolioAccounts({ route, navigation }: Props) {
     )
 
     const toggleMenu = () => {
-        if (isOpenMenu) {
-        Animated.timing(slideAnim, {
-            toValue: SCREEN_WIDTH,
-            duration: 250,
-            useNativeDriver: true,
-        }).start(() => setIsOpenMenu(false));
-        } else {
-        setIsOpenMenu(true);
+        setIsOpenMenu((prevOpen) => {
+            const nextState = !prevOpen;
+            
             Animated.timing(slideAnim, {
-                toValue: SCREEN_WIDTH - 300, // width of menu
+                toValue: nextState ? SCREEN_WIDTH - 300 : SCREEN_WIDTH,
                 duration: 250,
                 useNativeDriver: true,
-        }).start();
-        }
+            }).start();
+
+            return nextState;
+        });
     };
 
     return (
@@ -118,8 +116,15 @@ export function PortfolioAccounts({ route, navigation }: Props) {
             >
                 <Text>Wallet Top Up</Text>
             </TouchableOpacity>
-            <Text style={styles.item}>Button 2</Text>
-            <Text style={styles.item}>Button 3</Text>
+            <TouchableOpacity>
+                <Text style={styles.item}>Foreign Exchange</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+                <Text style={styles.item}>Stock Buy</Text>
+            </TouchableOpacity>
+            <TouchableOpacity>
+                <Text style={styles.item}>Stock Sell</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity onPress={toggleMenu}>
                 <Text style={{ marginTop: 20 }}>Close</Text>

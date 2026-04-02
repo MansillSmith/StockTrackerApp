@@ -1,7 +1,7 @@
 import { useSQLiteContext } from "expo-sqlite";
 import { GetUnixTime } from "../../utils/Utils";
 import { useEffect, useState } from "react";
-import { TextInput, View } from "react-native";
+import { TextInput, View, Pressable, Text } from "react-native";
 import { FormPicker } from "../FormPicker";
 import { globalStyles } from "../../styles";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
@@ -88,39 +88,55 @@ export function WalletTopUp({ route, navigation }: Props){
     }, [PortfolioID])
 
     return (
-         <View>
-            <FormPicker label="Wallet" items={walletAccounts} getter={formWalletAccountID} setter={(e:any) => {setFormWalletAccountID(e)}}/>
-            <FormPicker label="Equity" items={equityAccounts} getter={formEquityAccountID} setter={(e:any) => {setFormEquityAccountID(e)}}/>
-            <TextInput 
-                style = {[globalStyles.input, {marginBottom:10}]}
-                placeholder="Top up Amount"
-                value={formWalletAmount?.toLocaleString('en-NZ', {style: "currency", currency: "NZD"})}
-                keyboardType="numeric"
-                onChangeText={(e:any) => {setFormWalletAmount(e)}}
-            />
-            {/* <DatePicker 
-                dateString={transactionData?.Date?.toLocaleString()} 
-                isVisible={dateModalVisible}
-                setVisible={(isVisible:boolean) => {setDateModalVisible(isVisible)}}
-                setDate = {(e:Date) => {
-                    console.log("setting date to ", e)
-                    setTransactionData(prev => {
-                        if (!prev || prev.type !== "WalletTopUp") return prev
+        <View>
+            <View>
+                <FormPicker label="Wallet" items={walletAccounts} getter={formWalletAccountID} setter={(e:any) => {setFormWalletAccountID(e)}}/>
+                <FormPicker label="Equity" items={equityAccounts} getter={formEquityAccountID} setter={(e:any) => {setFormEquityAccountID(e)}}/>
+                <TextInput 
+                    style = {[globalStyles.input, {marginBottom:10}]}
+                    placeholder="Top up Amount"
+                    value={formWalletAmount?.toLocaleString('en-NZ', {style: "currency", currency: "NZD"})}
+                    keyboardType="numeric"
+                    onChangeText={(e:any) => {setFormWalletAmount(e)}}
+                />
+                {/* <DatePicker 
+                    dateString={transactionData?.Date?.toLocaleString()} 
+                    isVisible={dateModalVisible}
+                    setVisible={(isVisible:boolean) => {setDateModalVisible(isVisible)}}
+                    setDate = {(e:Date) => {
+                        console.log("setting date to ", e)
+                        setTransactionData(prev => {
+                            if (!prev || prev.type !== "WalletTopUp") return prev
 
-                        return {
-                            ...prev,
-                            Date: e
-                        }
-                    })
-                }}
-            /> */}
-            <TextInput 
-                style = {[globalStyles.input, {marginBottom:10}]}
-                placeholder="Description"
-                value={formDescription}
-                keyboardType="default"
-                onChangeText={(e:any) => { setFormDescription(e)}}
-            />
+                            return {
+                                ...prev,
+                                Date: e
+                            }
+                        })
+                    }}
+                /> */}
+                <TextInput 
+                    style = {[globalStyles.input, {marginBottom:10}]}
+                    placeholder="Description"
+                    value={formDescription}
+                    keyboardType="default"
+                    onChangeText={(e:any) => { setFormDescription(e)}}
+                />
+            </View>
+            <View style={[{flexDirection:'row'}]}>
+                <Pressable style={[globalStyles.smallButton, globalStyles.wideButton]}
+                    onPress={() => {
+                        // onSubmit(name);
+                        // setName("");
+                        navigation.goBack()
+                    }}
+                >
+                    <Text>Save</Text>
+                </Pressable>
+                {/* <Pressable style={[globalStyles.smallButton, globalStyles.wideButton]}>
+                    <Text>Cancel</Text>
+                </Pressable> */}
+            </View>
         </View>
     )
 }
