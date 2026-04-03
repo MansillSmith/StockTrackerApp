@@ -5,7 +5,9 @@ import { TextInput, View, Pressable, Text } from "react-native";
 import { FormPicker } from "../FormPicker";
 import { globalStyles } from "../../styles";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { RootStackParamList } from "../../types";
+import { Currency, RootStackParamList } from "../../types";
+import { useCurrencies } from "../../hooks";
+import { DatePicker } from "../DatePicker";
 
 //TODO: move this!
 type NamedItem = {ID: number, Name:string}
@@ -25,7 +27,10 @@ type Props = NativeStackScreenProps<
 
 // export type WalletTopUpProps = { portfolioID:number }
 export function WalletTopUp({ route, navigation }: Props){
-    const [journalEntryTypes, setJournalEntryTypes] = useState<NamedItem[]>([]);
+    const { currencies } = useCurrencies();
+    const [portfolioCurrency, setPortfolioCurrency] = useState<Currency | undefined>();
+
+    // const [journalEntryTypes, setJournalEntryTypes] = useState<NamedItem[]>([]);
     const [walletAccounts, setWalletAccounts] = useState<NamedItem[]>([]);
     const [equityAccounts, setEquityAccounts] = useState<NamedItem[]>([]);
 
@@ -39,57 +44,78 @@ export function WalletTopUp({ route, navigation }: Props){
 
     const { PortfolioID } = route.params
 
-    // async function saveWalletTopUp(walletTopUp:WalletTopUp){
-    //     // add a new journal entry
-    //     let journalEntryID:number = 0
-    //     if(walletTopUp.Amount !== undefined && walletTopUp.Description !== undefined && walletTopUp.Date !== undefined && walletTopUp.EquityAccountID !== undefined && walletTopUp.WalletAccountID !== undefined){
-    //         const addJournalEntryQuery = `INSERT INTO JournalEntries (TimestampUNIX, Description, JournalEntryTypeID) VALUES (?, ?, ?)`
-    //         const results = await db.runAsync(addJournalEntryQuery, [GetUnixTime(walletTopUp.Date.getTime()), walletTopUp.Description, 1])
-    //         journalEntryID = results.lastInsertRowId
+    async function saveWalletTopUp(){
+        // add a new journal entry
+        let journalEntryID:number = 0
+        if(formWalletAmount !== undefined && formDescription !== undefined && formDate !== undefined && formEquityAccountID !== undefined && formWalletAccountID !== undefined){
+            const addJournalEntryQuery = `INSERT INTO JournalEntries (TimestampUNIX, Description, JournalEntryTypeID) VALUES (?, ?, ?)`
+            const results = await db.runAsync(addJournalEntryQuery, [GetUnixTime(formDate.getTime()), formDescription, 1])
+            journalEntryID = results.lastInsertRowId
 
-    //         // credit equity
-    //         // debit wallet
-    //         if(journalEntryID !== 0){
-    //             const addJournalLinesQuery = `INSERT INTO JournalLines (JournalEntryID, AccountID, Debit, Credit, ReportingDebit, ReportingCredit) VALUES (?,?,?,?,?,?), (?,?,?,?,?,?)`
-    //             const results = await db.runAsync(addJournalLinesQuery, [journalEntryID, walletTopUp.WalletAccountID, walletTopUp.Amount, null, "TODO", null, journalEntryID, walletTopUp.EquityAccountID, null, walletTopUp.Amount, null, "TODO"])
-    //         }
-    //     }
-    // }
+            // credit equity
+            // debit wallet
+            if(journalEntryID !== 0){
+                const addJournalLinesQuery = `INSERT INTO JournalLines (JournalEntryID, AccountID, Debit, Credit, ReportingDebit, ReportingCredit) VALUES (?,?,?,?,?,?), (?,?,?,?,?,?)`
+                await db.runAsync(addJournalLinesQuery,         [journalEntryID, formWalletAccountID, formWalletAmount, 0, formWalletAmount, 0, 
+                                                                journalEntryID, formEquityAccountID, 0, formWalletAmount, 0, formWalletAmount])
+            }
+        }
+    }
+
+    async function clearForm(){
+        [setFormDate, setFormDescription, setFormEquityAccountID, setFormWalletAccountID, setFormWalletAmount].map((i) => i(undefined))
+    }
 
     useEffect(() => {
-        async function getJournalEntryTypes() {
-            const results = await db.getAllAsync("SELECT ID, Name FROM JournalEntryTypes")
-            const data: NamedItem[] = results.map((row:any) => ({
-                ID: row.ID,
-                Name: row.Name
-            }))
-            setJournalEntryTypes(data)
+        // async function getJournalEntryTypes() {
+        //     const results = await db.getAllAsync("SELECT ID, Name FROM JournalEntryTypes")
+        //     const data: NamedItem[] = results.map((row:any) => ({
+        //         ID: row.ID,
+        //         Name: row.Name
+        //     }))
+        //     setJournalEntryTypes(data)
+        // }
+
+        async function getPortfolioCurrency() {
+            const results = await db.getAllAsync('SELECT DefaultCurrencyID FROM Portfolios WHERE ID = ?', [PortfolioID])
+            const data:number = results[0].DefaultCurrencyID
+            setPortfolioCurrency(currencies[data])
+            return data
         }
 
-        async function getAccounts(accountName:string, setter: (items: NamedItem[]) => void){
+        async function getAccounts(accountName:string, setter: (items: NamedItem[]) => void, currencyID:number){
             const results = await db.getAllAsync(`
                 SELECT a.ID, a.Name
                 FROM Accounts a
                 INNER JOIN AccountTypes accT on accT.ID = a.AccountTypeID
                 WHERE accT.Name = ?
                 AND a.PortfolioID = ?
-            `, [accountName, PortfolioID])
+                AND a.DefaultCurrencyID = ?
+            `, [accountName, PortfolioID, currencyID])
             const data: NamedItem[] = results.map((row:any) =>({
                 ID: row.ID,
                 Name: row.Name
             }))
-            console.log(data)
             setter(data)
         }
 
-        getJournalEntryTypes()
-        getAccounts("Wallet", (items) => setWalletAccounts(items))
-        getAccounts("Equity", (items) => setEquityAccounts(items))
+        async function loadData(){
+            // getJournalEntryTypes()
+            const currencyID = await getPortfolioCurrency()
+            getAccounts("Wallet", (items) => setWalletAccounts(items), currencyID)
+            getAccounts("Equity", (items) => setEquityAccounts(items), currencyID)
+        }
+        loadData()
     }, [PortfolioID])
 
     return (
-        <View>
-            <View>
+        <View style={{
+            alignItems:'center'
+        }}>
+            <View style={{
+                width:'95%'
+            }}>
+                <Text>Only top ups in the default currency are support ({portfolioCurrency?.ShortName})</Text>
                 <FormPicker label="Wallet" items={walletAccounts} getter={formWalletAccountID} setter={(e:any) => {setFormWalletAccountID(e)}}/>
                 <FormPicker label="Equity" items={equityAccounts} getter={formEquityAccountID} setter={(e:any) => {setFormEquityAccountID(e)}}/>
                 <TextInput 
@@ -99,22 +125,12 @@ export function WalletTopUp({ route, navigation }: Props){
                     keyboardType="numeric"
                     onChangeText={(e:any) => {setFormWalletAmount(e)}}
                 />
-                {/* <DatePicker 
-                    dateString={transactionData?.Date?.toLocaleString()} 
-                    isVisible={dateModalVisible}
-                    setVisible={(isVisible:boolean) => {setDateModalVisible(isVisible)}}
-                    setDate = {(e:Date) => {
-                        console.log("setting date to ", e)
-                        setTransactionData(prev => {
-                            if (!prev || prev.type !== "WalletTopUp") return prev
-
-                            return {
-                                ...prev,
-                                Date: e
-                            }
-                        })
-                    }}
-                /> */}
+                <DatePicker 
+                    dateString={formDate?.toLocaleString()} 
+                    // isVisible={false}
+                    // setVisible={(isVisible:boolean) => {}}
+                    setDate = {(e:Date) => {setFormDate(e)}}
+                />
                 <TextInput 
                     style = {[globalStyles.input, {marginBottom:10}]}
                     placeholder="Description"
@@ -128,7 +144,10 @@ export function WalletTopUp({ route, navigation }: Props){
                     onPress={() => {
                         // onSubmit(name);
                         // setName("");
-                        navigation.goBack()
+
+                        saveWalletTopUp();
+                        // navigation.goBack()
+                        // clearForm()
                     }}
                 >
                     <Text>Save</Text>

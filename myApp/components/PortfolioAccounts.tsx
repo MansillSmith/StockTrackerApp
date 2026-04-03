@@ -46,7 +46,6 @@ export function PortfolioAccounts({ route, navigation }: Props) {
                 onRemove={() => {}}
             />
             <Pressable onPress={() => {
-                console.log("clicked")
                 toggleMenu()
             }} style={globalStyles.smallButton}>
                 <Text>☰</Text>
@@ -63,8 +62,6 @@ export function PortfolioAccounts({ route, navigation }: Props) {
             // const db = await setupDatabase()
             // const results = await db.getAllSync("SELECT ID, Name FROM Accounts WHERE PortfolioID = ?", [ID]
             const results = await db.getAllSync(getAccountsQuery, [ID])
-            console.log(results);
-            console.log(results.length)
             const data: PortfolioAccountProp[] = results.map((row:any) => ({
                 ID: row.ID,
                 Name: row.Name,
@@ -108,24 +105,11 @@ export function PortfolioAccounts({ route, navigation }: Props) {
             { transform: [{ translateX: slideAnim }] },
             ]}
         >
-            <TouchableOpacity 
-                style={styles.item}
-                onPress={() => {
-                    navigation.navigate("WalletTopUp", {PortfolioID: ID})
-                }}
-            >
-                <Text>Wallet Top Up</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <Text style={styles.item}>Foreign Exchange</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <Text style={styles.item}>Stock Buy</Text>
-            </TouchableOpacity>
-            <TouchableOpacity>
-                <Text style={styles.item}>Stock Sell</Text>
-            </TouchableOpacity>
-
+            <MenuItem textValue="Wallet Top Up" navigationPage="WalletTopUp" ID={ID} navigation={navigation}/>
+            <MenuItem textValue="Foreign Exchange" navigationPage={undefined} ID={ID} navigation={navigation}/>
+            <MenuItem textValue="Stock Buy" navigationPage={undefined} ID={ID} navigation={navigation}/>
+            <MenuItem textValue="Stock Sell" navigationPage={undefined} ID={ID} navigation={navigation}/>
+            <MenuItem textValue="Delete/Edit" navigationPage={undefined} ID={ID} navigation={navigation}/>
             <TouchableOpacity onPress={toggleMenu}>
                 <Text style={{ marginTop: 20 }}>Close</Text>
             </TouchableOpacity>
@@ -138,6 +122,19 @@ export function PortfolioAccounts({ route, navigation }: Props) {
             onSubmit={() => {}}
         /> */}
         </View>
+    )
+}
+
+type MenuItemProps = { textValue:string, navigationPage:string | undefined, ID:number, navigation:any}
+function MenuItem({ textValue, navigationPage, ID, navigation }: MenuItemProps){
+    return (
+        <TouchableOpacity 
+            onPress={() => {
+                navigationPage !== undefined && navigation.navigate(navigationPage, {PortfolioID: ID})
+            }}
+        >
+            <Text style={styles.item} >{textValue}</Text>
+        </TouchableOpacity>
     )
 }
 
