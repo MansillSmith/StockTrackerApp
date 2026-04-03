@@ -1,12 +1,16 @@
-import React from "react";
+import React, { useState } from "react";
 import { TextInput, TouchableOpacity, View } from "react-native";
-// import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import DateTimePickerModal from "react-native-modal-datetime-picker";
 
-export type DatePickerProps = {dateString: string | undefined, setDate: (date:Date) => void, isVisible:boolean, setVisible: (isVisible:boolean) => void}
-export function DatePicker({dateString, setDate, isVisible, setVisible} :DatePickerProps){
+// export type DatePickerProps = {dateString: string | undefined, setDate: (date:Date) => void, isVisible:boolean, setVisible: (isVisible:boolean) => void}
+// export function DatePicker({dateString, setDate, isVisible, setVisible} :DatePickerProps){
+export type DatePickerProps = {dateString: string | undefined, setDate: (date:Date) => void}
+export function DatePicker({dateString, setDate} :DatePickerProps){
+    const [isDateVisible, setIsDateVisibleVisible] = useState<boolean>(false)
+
     return (
     <View style={{marginBottom:10}}>
-      <TouchableOpacity onPress={() => setVisible(true)}>
+      <TouchableOpacity onPress={() => setIsDateVisibleVisible(true)}>
         <TextInput
           placeholder="Select date"
           value={dateString}
@@ -20,15 +24,15 @@ export function DatePicker({dateString, setDate, isVisible, setVisible} :DatePic
         />
       </TouchableOpacity>
 
-      {/* <DateTimePickerModal
-        isVisible={isVisible}
+      <DateTimePickerModal
+        isVisible={isDateVisible}
         mode="datetime"
-        onConfirm={(selectedDate) => {
+        onConfirm={(selectedDate: Date) => {
           setDate(selectedDate);
-          setVisible(false);
+          setIsDateVisibleVisible(false);
         }}
-        onCancel={() => setVisible(false)}
-      /> */}
+        onCancel={() => setIsDateVisibleVisible(false)}
+      />
     </View>
   );
 }
