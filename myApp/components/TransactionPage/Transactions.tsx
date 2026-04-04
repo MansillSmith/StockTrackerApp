@@ -5,7 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { Animated, Dimensions, Pressable, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { globalStyles } from "../../styles";
-import { WalletTopUp, WalletTopUpModal } from "../EntryForms/WalletTopUpModal";
+import { WalletTopUpModal } from "../EntryForms/WalletTopUpModal";
 
 type Props = NativeStackScreenProps<
   RootStackParamList,

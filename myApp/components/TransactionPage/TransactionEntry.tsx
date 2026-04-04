@@ -4,6 +4,7 @@ import { GetDate, GetDateString } from "../../utils/Utils";
 import { useState } from "react";
 import { EditDeleteButtons } from "../EditDeleteButtons";
 import { DeleteItemForm } from "../EntryForms/DeleteItemForm";
+import { useSQLiteContext } from "expo-sqlite";
 
 export type TransactionEntryProps = { ID: number, Description: string, TimestampUNIX: number, JournalLines: JournalLine[]}
 export function TransactionEntry({ ID, Description, TimestampUNIX, JournalLines }: TransactionEntryProps){
@@ -12,6 +13,16 @@ export function TransactionEntry({ ID, Description, TimestampUNIX, JournalLines 
 
     const debitJournalLines: JournalLine[] = JournalLines.filter((val) => val.Debit > 0)
     const creditJournalLines: JournalLine[] = JournalLines.filter((val) => val.Credit > 0)
+
+    const db = useSQLiteContext()
+
+    async function DeleteEntry(ID:number){
+        const query:string = `
+        DELETE FROM JournalEntries WHERE ID = ?
+        DELETE FROM JournalLines WHERE JournalEntryID = ?
+        `
+        await db.runAsync(query, [ID, ID])
+    }
 
     return (
         <>
@@ -62,7 +73,7 @@ export function TransactionEntry({ ID, Description, TimestampUNIX, JournalLines 
                 </TouchableOpacity>
                 { showEdit && <EditDeleteButtons onEdit={() => setShowEdit(true)} onRemove={() => setShowDelete(true)}/>}
             </View>
-            <DeleteItemForm onSave={() => {}} onClose={() => setShowDelete(false)} showModal={showDelete} />
+            <DeleteItemForm onSave={() => DeleteEntry(ID)} onClose={() => setShowDelete(false)} showModal={showDelete} />
         </>
     )
 }
