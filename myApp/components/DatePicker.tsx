@@ -9,7 +9,7 @@ export function DatePicker({dateString, setDate} :DatePickerProps){
     const [isDateVisible, setIsDateVisibleVisible] = useState<boolean>(false)
 
     return (
-    <View style={{marginBottom:10}}>
+    <View style={{marginBottom:10, width:'100%'}}>
       <TouchableOpacity onPress={() => setIsDateVisibleVisible(true)}>
         <TextInput
           placeholder="Select date"

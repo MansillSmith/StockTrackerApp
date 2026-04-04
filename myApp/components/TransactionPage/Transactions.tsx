@@ -5,6 +5,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
 import { Animated, Dimensions, Pressable, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { globalStyles } from "../../styles";
+import { WalletTopUp, WalletTopUpModal } from "../EntryForms/WalletTopUpModal";
 
 type Props = NativeStackScreenProps<
   RootStackParamList,
@@ -15,6 +16,9 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 
 type JournalDictionary = Record<number, JournalLine[]>;
 export function Transactions({ route, navigation }: Props) {
+    // modals
+    const [showWalletTopUp, setShowWalletTopUp] = useState<boolean>(false)
+
     const [isOpenMenu, setIsOpenMenu] = useState<boolean>(false);
     const [transactionEntries, setTransactionEntries] = useState<TransactionEntryProps[]>([])
     const db = useSQLiteContext();
@@ -115,27 +119,25 @@ export function Transactions({ route, navigation }: Props) {
                     { transform: [{ translateX: slideAnim }] },
                 ]}
             >
-                <MenuItem textValue="Wallet Top Up" navigationPage="WalletTopUp" ID={1} navigation={navigation}/>
-                <MenuItem textValue="Foreign Exchange" navigationPage={undefined} ID={1} navigation={navigation}/>
-                <MenuItem textValue="Stock Buy" navigationPage={undefined} ID={1} navigation={navigation}/>
-                <MenuItem textValue="Stock Sell" navigationPage={undefined} ID={1} navigation={navigation}/>
-                <MenuItem textValue="Delete/Edit" navigationPage={undefined} ID={1} navigation={navigation}/>
+                <MenuItem textValue="Wallet Top Up" onClick={() => setShowWalletTopUp(true)}/>
+                <MenuItem textValue="Foreign Exchange" onClick={() => {}}/>
+                <MenuItem textValue="Stock Buy" onClick={() => {}}/>
+                <MenuItem textValue="Stock Sell" onClick={() => {}}/>
+                <MenuItem textValue="Delete/Edit" onClick={() => {}}/>
                 <TouchableOpacity onPress={toggleMenu}>
                     <Text style={{ marginTop: 20 }}>Close</Text>
                 </TouchableOpacity>
             </Animated.View>
+
+            <WalletTopUpModal showModal={showWalletTopUp} onClose={() => setShowWalletTopUp(false)} data={undefined} />
         </>
     )
 }
 
-type MenuItemProps = { textValue:string, navigationPage:string | undefined, ID:number, navigation:any}
-function MenuItem({ textValue, navigationPage, ID, navigation }: MenuItemProps){
+type MenuItemProps = { textValue:string, onClick: () => void}
+function MenuItem({ textValue, onClick }: MenuItemProps){
     return (
-        <TouchableOpacity 
-            onPress={() => {
-                navigationPage !== undefined && navigation.navigate(navigationPage, {PortfolioID: ID})
-            }}
-        >
+        <TouchableOpacity onPress={onClick}>
             <Text style={styles.item} >{textValue}</Text>
         </TouchableOpacity>
     )

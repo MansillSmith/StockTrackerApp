@@ -12,7 +12,7 @@ import { ActionButtons } from './components/ActionButtons';
 import { ShareAccounts } from './components/ShareAccounts';
 import { FinancialAccount } from './components/FinancialAccount';
 import { CurrencyProvider } from './components/CurrencyProvider';
-import { WalletTopUp } from './components/EntryForms/WalletTopUp';
+// import { WalletTopUp } from './components/EntryForms/WalletTopUpModal';
 import { Transactions } from './components/TransactionPage/Transactions';
 // import { useEffect, useState } from 'react';
 
@@ -40,7 +40,7 @@ export default function App() {
                 <Stack.Screen name="Transactions" component={Transactions}/>
 
 
-                <Stack.Screen name="WalletTopUp" component={WalletTopUp}/>
+                {/* <Stack.Screen name="WalletTopUp" component={WalletTopUp}/> */}
               </Stack.Navigator>     
             </NavigationContainer>
           </CurrencyProvider>
