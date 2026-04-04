@@ -22,7 +22,8 @@ export function PortfolioItem({ID, Name, onEdit, onRemove}: PortfolioItemProps){
         // <View><Text>{Name}</Text></View>
         <View style={{
             flexDirection:'row',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            alignItems: 'center'
         }}>
             <TouchableOpacity 
                 style={[ globalStyles.container,  showEdit ? {width:'75%'} : {width:'100%'}]}

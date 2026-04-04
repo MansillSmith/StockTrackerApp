@@ -8,6 +8,7 @@ export type RootStackParamList = {
   ShareAccounts: {ID: number};
   FinancialAccount: {ID: number, AccountBalance:number};
   WalletTopUp: {PortfolioID: number};
+  Transactions: {PortfolioID: number};
 };
 
 export type PortfolioAccountProp = {
@@ -29,3 +30,5 @@ type CurrencyContextType = {
 };
 
 export const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
+
+export type JournalLine = { ID:number, JournalEntryID: number, StockName: string | undefined, Quantity:number | undefined, AccountName: string, Debit:number, Credit:number, ReportingDebit:number, ReportingCredit:number }

@@ -24,13 +24,13 @@ type Props = NativeStackScreenProps<
   "PortfolioAccounts"
 >;
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
+// const SCREEN_WIDTH = Dimensions.get('window').width;
 
 export function PortfolioAccounts({ route, navigation }: Props) {
     const [addAccountModalVisible, setaddAccountModalVisible] = useState<Boolean>(false)
-    const [isOpenMenu, setIsOpenMenu] = useState<boolean>(false);
+    // const [isOpenMenu, setIsOpenMenu] = useState<boolean>(false);
     const [portfolioAccounts, setPortfolioAccounts] = useState<PortfolioAccountProp[]>([]);
-    const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
+    // const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
 
     const { ID } = route.params
 
@@ -46,7 +46,8 @@ export function PortfolioAccounts({ route, navigation }: Props) {
                 onRemove={() => {}}
             />
             <Pressable onPress={() => {
-                toggleMenu()
+                // toggleMenu()
+                navigation.navigate("Transactions", {PortfolioID: ID})
             }} style={globalStyles.smallButton}>
                 <Text>☰</Text>
             </Pressable>
@@ -75,19 +76,19 @@ export function PortfolioAccounts({ route, navigation }: Props) {
     }, []
     )
 
-    const toggleMenu = () => {
-        setIsOpenMenu((prevOpen) => {
-            const nextState = !prevOpen;
+    // const toggleMenu = () => {
+    //     setIsOpenMenu((prevOpen) => {
+    //         const nextState = !prevOpen;
             
-            Animated.timing(slideAnim, {
-                toValue: nextState ? SCREEN_WIDTH - 300 : SCREEN_WIDTH,
-                duration: 250,
-                useNativeDriver: true,
-            }).start();
+    //         Animated.timing(slideAnim, {
+    //             toValue: nextState ? SCREEN_WIDTH - 300 : SCREEN_WIDTH,
+    //             duration: 250,
+    //             useNativeDriver: true,
+    //         }).start();
 
-            return nextState;
-        });
-    };
+    //         return nextState;
+    //     });
+    // };
 
     return (
         <View style={{
@@ -99,7 +100,7 @@ export function PortfolioAccounts({ route, navigation }: Props) {
             {portfolioAccounts.map((i, index) => (
                 <PortfolioAccount key={i.ID} {...i}/>
             ))}
-        <Animated.View
+        {/* <Animated.View
             style={[
             styles.menu,
             { transform: [{ translateX: slideAnim }] },
@@ -113,7 +114,7 @@ export function PortfolioAccounts({ route, navigation }: Props) {
             <TouchableOpacity onPress={toggleMenu}>
                 <Text style={{ marginTop: 20 }}>Close</Text>
             </TouchableOpacity>
-        </Animated.View>
+        </Animated.View> */}
 
         {/* <TransactionModal
             visible={transactionModalVisible}
@@ -125,39 +126,39 @@ export function PortfolioAccounts({ route, navigation }: Props) {
     )
 }
 
-type MenuItemProps = { textValue:string, navigationPage:string | undefined, ID:number, navigation:any}
-function MenuItem({ textValue, navigationPage, ID, navigation }: MenuItemProps){
-    return (
-        <TouchableOpacity 
-            onPress={() => {
-                navigationPage !== undefined && navigation.navigate(navigationPage, {PortfolioID: ID})
-            }}
-        >
-            <Text style={styles.item} >{textValue}</Text>
-        </TouchableOpacity>
-    )
-}
+// type MenuItemProps = { textValue:string, navigationPage:string | undefined, ID:number, navigation:any}
+// function MenuItem({ textValue, navigationPage, ID, navigation }: MenuItemProps){
+//     return (
+//         <TouchableOpacity 
+//             onPress={() => {
+//                 navigationPage !== undefined && navigation.navigate(navigationPage, {PortfolioID: ID})
+//             }}
+//         >
+//             <Text style={styles.item} >{textValue}</Text>
+//         </TouchableOpacity>
+//     )
+// }
 
-const styles = StyleSheet.create({
-  button: {
-    marginTop: 60,
-    marginLeft: 20,
-    backgroundColor: 'black',
-    padding: 10,
-    borderRadius: 6,
-  },
-  menu: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    width: 220,
-    height: '100%',
-    backgroundColor: '#f2f2f2',
-    padding: 20,
-    elevation: 5,
-  },
-  item: {
-    fontSize: 18,
-    marginVertical: 10,
-  },
-});
+// const styles = StyleSheet.create({
+//   button: {
+//     marginTop: 60,
+//     marginLeft: 20,
+//     backgroundColor: 'black',
+//     padding: 10,
+//     borderRadius: 6,
+//   },
+//   menu: {
+//     position: 'absolute',
+//     top: 0,
+//     right: 0,
+//     width: 220,
+//     height: '100%',
+//     backgroundColor: '#f2f2f2',
+//     padding: 20,
+//     elevation: 5,
+//   },
+//   item: {
+//     fontSize: 18,
+//     marginVertical: 10,
+//   },
+// });
