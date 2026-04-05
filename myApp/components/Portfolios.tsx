@@ -58,7 +58,7 @@ export function Portfolios({ navigation }: Props){
 
     useEffect(() => {
         async function getPortfolioData(){
-            console.log(await db.getAllAsync("PRAGMA table_info(Portfolios)"))
+            // console.log(await db.getAllAsync("PRAGMA table_info(Portfolios)"))
             const results = await db.getAllAsync("SELECT ID, Name, DefaultCurrencyID FROM Portfolios ORDER BY DisplayOrder")
             const data: PortfolioItemData[] = results.map((row: any) =>({
                 ID: row.ID,
