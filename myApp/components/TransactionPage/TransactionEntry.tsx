@@ -8,11 +8,11 @@ import { useSQLiteContext } from "expo-sqlite";
 import { WalletTopUpModal } from "../EntryForms/WalletTopUpModal";
 
 export type TransactionEntryData = { ID: number, Description: string, JournalEntryTypeID:number, TimestampUNIX: number, JournalLines: JournalLine[]}
-export type TransactionEntryProps = { updateParent: () => void, data:TransactionEntryData}
-export function TransactionEntry({ updateParent, data }: TransactionEntryProps){
+export type TransactionEntryProps = { updateParent: () => void, onShowEditButtons: (ID:number) => void, onEdit: () => void, selected:boolean, data:TransactionEntryData}
+export function TransactionEntry({ updateParent, onShowEditButtons, onEdit, selected, data }: TransactionEntryProps){
     const { ID, Description, JournalEntryTypeID, TimestampUNIX, JournalLines } = data
 
-    const [showEdit, setShowEdit] = useState<boolean>(false)
+    // const [selected, setSelected] = useState<boolean>(false)
     const [showDelete, setShowDelete] = useState<boolean>(false)
     // const [showEditForm, setShowEditForm] = useState<boolean>(false)
 
@@ -40,8 +40,11 @@ export function TransactionEntry({ updateParent, data }: TransactionEntryProps){
                 <TouchableOpacity style={[{
                     // backgroundColor: '#CCC',
 
-                }, showEdit? {width: '75%'} : {width: '100%'}]}
-                    onLongPress={ () => setShowEdit(!showEdit)}
+                }, selected? {width: '75%'} : {width: '100%'}]}
+                    onLongPress={ () => {
+                        // setSelected(!selected)
+                        onShowEditButtons(ID)
+                    }}
                 >
                     <View style ={{
                         flexDirection: 'row',
@@ -76,7 +79,7 @@ export function TransactionEntry({ updateParent, data }: TransactionEntryProps){
                         </View>
                     </View>
                 </TouchableOpacity>
-                { showEdit && <EditDeleteButtons onEdit={() => {}} onRemove={() => setShowDelete(true)}/>}
+                { selected && <EditDeleteButtons onEdit={() => {onEdit()}} onRemove={() => setShowDelete(true)}/>}
             </View>
             <DeleteItemForm 
                 onSave={() => {

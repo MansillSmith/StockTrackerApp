@@ -2,7 +2,7 @@ import { Modal, View, Text, TextInput, Pressable, StyleSheet } from "react-nativ
 import { useState } from "react";
 import { globalStyles } from "../styles";
 import { PortfolioItemData } from "../types";
-import { FormInput } from "./FormInput";
+import { FormInput } from "./SimpleModals/FormInput";
 
 export type PortfolioFormModalProps = {visible: boolean, portfolioItemData?:PortfolioItemData, isAdd:boolean, onClose: () => void, onSubmit: (name:string) => void}
 

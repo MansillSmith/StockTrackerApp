@@ -1,7 +1,8 @@
 import { Picker } from '@react-native-picker/picker'
 import { View, Text } from 'react-native'
 
-export function FormPicker( { label, items, getter, setter}:any){
+export type FormPickerProps = { label:string, items:any[], getter:any, setter:(e:any) => void, labelKey?:string}
+export function FormPicker( { label, items, getter, setter, labelKey="Name"}:FormPickerProps){
     return (
         <View style={{
             flexDirection:'row',
@@ -16,7 +17,7 @@ export function FormPicker( { label, items, getter, setter}:any){
             >
                 {
                     items.map((i:any) => (
-                        <Picker.Item key={i.ID} label={i.Name} value={i.ID}/>
+                        <Picker.Item key={i.ID} label={i[labelKey]} value={i.ID}/>
                     ))
                 }
             </Picker>

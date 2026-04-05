@@ -2,15 +2,16 @@ import { useSQLiteContext } from "expo-sqlite";
 import { GetUnixTime } from "../../utils/Utils";
 import { useEffect, useState } from "react";
 import { TextInput, View, Pressable, Text, Modal } from "react-native";
-import { FormPicker } from "../FormPicker";
+import { FormPicker } from "../SimpleModals/FormPicker";
 import { globalStyles } from "../../styles";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { Currency, RootStackParamList } from "../../types";
+import { Currency, NamedItem, RootStackParamList } from "../../types";
 import { useCurrencies } from "../../hooks";
-import { DatePicker } from "../DatePicker";
+import { DatePicker } from "../SimpleModals/DatePicker";
+import { SimpleModal } from "../SimpleModals/SimpleModal";
 
 //TODO: move this!
-type NamedItem = {ID: number, Name:string}
+
 
 type WalletTopUpData = { 
     Amount:number | undefined,
@@ -103,64 +104,38 @@ export function WalletTopUpModal({ showModal, onClose, portfolioID, data }: Wall
     }, [portfolioID])
 
     return (
-        <Modal visible={showModal} animationType="slide" transparent>
-            <View style={{
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-                backgroundColor: "rgba(0,0,0,0.5)"
-            }}>
-                <View style={{
-                    backgroundColor: "white",
-                    padding: 20,
-                    borderRadius: 10,
-                    width: "80%",
-                    alignItems: 'center'
-                }}>
-                    <Text>Wallet Top Up</Text>
-                    <Text style={{fontSize:10}}>Only top ups in the default currency are support ({portfolioCurrency?.ShortName})</Text>
-                    <FormPicker label="Wallet:" items={walletAccounts} getter={formWalletAccountID} setter={(e:any) => {setFormWalletAccountID(e)}}/>
-                    <FormPicker label="Equity:" items={equityAccounts} getter={formEquityAccountID} setter={(e:any) => {setFormEquityAccountID(e)}}/>
-                    <TextInput 
-                        style = {[globalStyles.input, {marginBottom:10, width:'100%'}]}
-                        placeholder="Top up Amount"
-                        value={formWalletAmount?.toLocaleString('en-NZ', {style: "currency", currency: "NZD"})}
-                        keyboardType="numeric"
-                        onChangeText={(e:any) => {setFormWalletAmount(e)}}
-                    />
-                    <DatePicker 
-                        dateString={formDate?.toLocaleString()} 
-                        // isVisible={false}
-                        // setVisible={(isVisible:boolean) => {}}
-                        setDate = {(e:Date) => {setFormDate(e)}}
-                    />
-                    <TextInput 
-                        style = {[globalStyles.input, {marginBottom:10, width:'100%'}]}
-                        placeholder="Description"
-                        value={formDescription}
-                        keyboardType="default"
-                        onChangeText={(e:any) => { setFormDescription(e)}}
-                    />
-                    <View style={[{flexDirection:'row'}]}>
-                        <Pressable style={[globalStyles.smallButton, globalStyles.wideButton]}
-                            onPress={() => {
-                                // onSubmit(name);
-                                // setName("");
-
-                                saveWalletTopUp();
-                                onClose();
-                                // navigation.goBack()
-                                // clearForm()
-                            }}
-                        >
-                            <Text>Save</Text>
-                        </Pressable>
-                        <Pressable style={[globalStyles.smallButton, globalStyles.wideButton]} onPress={() => onClose()}>
-                            <Text>Cancel</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </View>
-        </Modal>
+        <SimpleModal 
+            showModal={showModal} 
+            onClose={onClose} 
+            onSave={() => {
+                saveWalletTopUp();
+                onClose();
+            }}
+        >
+            <Text>Wallet Top Up</Text>
+            <Text style={{fontSize:10}}>Only top ups in the default currency are support ({portfolioCurrency?.ShortName})</Text>
+            <FormPicker label="Wallet:" items={walletAccounts} getter={formWalletAccountID} setter={(e:any) => {setFormWalletAccountID(e)}}/>
+            <FormPicker label="Equity:" items={equityAccounts} getter={formEquityAccountID} setter={(e:any) => {setFormEquityAccountID(e)}}/>
+            <TextInput 
+                style = {[globalStyles.input, globalStyles.textInput]}
+                placeholder="Top up Amount"
+                value={formWalletAmount?.toLocaleString('en-NZ', {style: "currency", currency: "NZD"})}
+                keyboardType="numeric"
+                onChangeText={(e:any) => {setFormWalletAmount(e)}}
+            />
+            <DatePicker 
+                dateString={formDate?.toLocaleString()} 
+                // isVisible={false}
+                // setVisible={(isVisible:boolean) => {}}
+                setDate = {(e:Date) => {setFormDate(e)}}
+            />
+            <TextInput 
+                style = {[globalStyles.input, globalStyles.textInput]}
+                placeholder="Description"
+                value={formDescription}
+                keyboardType="default"
+                onChangeText={(e:any) => { setFormDescription(e)}}
+            />
+        </SimpleModal>
     )
 }

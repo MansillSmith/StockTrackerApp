@@ -20,6 +20,7 @@ export function DatePicker({dateString, setDate} :DatePickerProps){
             borderWidth: 1,
             padding: 12,
             borderRadius: 8,
+            textAlign: 'center'
           }}
         />
       </TouchableOpacity>

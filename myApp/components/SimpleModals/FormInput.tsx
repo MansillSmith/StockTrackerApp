@@ -1,7 +1,7 @@
-import { View, Text, TextInput } from 'react-native'
-import { globalStyles } from '../styles'
-import { FormInputProps } from '../types'
+import { View, Text, TextInput, KeyboardTypeOptions } from 'react-native'
+import { globalStyles } from '../../styles'
 
+export type FormInputProps = { label:string, getter:string, setter: () => void, tiKeyboardType: KeyboardTypeOptions | undefined, placeholder:string}
 export function FormInput({label, getter, setter, tiKeyboardType="default", placeholder}: FormInputProps){
     return (
         <View style={{

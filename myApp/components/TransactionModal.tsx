@@ -3,9 +3,9 @@ import { globalStyles } from "../styles";
 import { Picker } from "@react-native-picker/picker";
 import React, { useEffect, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
-import { FormInput } from "./FormInput";
-import { FormPicker } from "./FormPicker";
-import { DatePicker } from "./DatePicker";
+import { FormInput } from "./SimpleModals/FormInput";
+import { FormPicker } from "./SimpleModals/FormPicker";
+import { DatePicker } from "./SimpleModals/DatePicker";
 import { GetUnixTime } from "../utils/Utils";
 
 

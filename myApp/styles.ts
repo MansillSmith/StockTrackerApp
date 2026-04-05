@@ -29,5 +29,9 @@ export const globalStyles = StyleSheet.create({
   },
   wideButton:{
     width:60
+  },
+  textInput:{
+    marginBottom:10,
+    width:'100%'
   }
 });

@@ -6,6 +6,7 @@ import { useSQLiteContext } from "expo-sqlite";
 import { Animated, Dimensions, Pressable, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { globalStyles } from "../../styles";
 import { WalletTopUpModal } from "../EntryForms/WalletTopUpModal";
+import { BuySharesModal } from "../EntryForms/BuySharesModal";
 
 type Props = NativeStackScreenProps<
   RootStackParamList,
@@ -18,9 +19,11 @@ type JournalDictionary = Record<number, JournalLine[]>;
 export function Transactions({ route, navigation }: Props) {
     // modals
     const [showWalletTopUp, setShowWalletTopUp] = useState<boolean>(false)
+    const [showBuySharesModal, setShowBuySharesModal] = useState<boolean>(false)
 
     const [isOpenMenu, setIsOpenMenu] = useState<boolean>(false);
     const [transactionEntries, setTransactionEntries] = useState<TransactionEntryData[]>([])
+    const [selectedTransactionEntryID, setSelectedTransactionEntriesID] = useState<number> ( 0)
     const db = useSQLiteContext();
     const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
 
@@ -117,7 +120,23 @@ export function Transactions({ route, navigation }: Props) {
                 contentContainerStyle={{ paddingBottom: 100 }}
             >
                 {transactionEntries.map((i) => (
-                    <TransactionEntry key={i.ID} data={{...i}} updateParent={fetchAllData}/>
+                    <TransactionEntry 
+                        key={i.ID} 
+                        data={{...i}} 
+                        updateParent={fetchAllData} 
+                        onShowEditButtons={(i) => {
+                            selectedTransactionEntryID === i ? setSelectedTransactionEntriesID(0) : setSelectedTransactionEntriesID(i)
+                        }}
+                        onEdit={() => {
+                            switch(i.JournalEntryTypeID){
+                                case 1:
+                                    return setShowWalletTopUp(true)
+                                default:
+                                    return null;
+                            }                 
+                        }} 
+                        selected={i.ID === selectedTransactionEntryID} 
+                    />
                 ))}
             </ScrollView>
         
@@ -129,9 +148,8 @@ export function Transactions({ route, navigation }: Props) {
             >
                 <MenuItem textValue="Wallet Top Up" onClick={() => setShowWalletTopUp(true)}/>
                 <MenuItem textValue="Foreign Exchange" onClick={() => {}}/>
-                <MenuItem textValue="Stock Buy" onClick={() => {}}/>
+                <MenuItem textValue="Stock Buy" onClick={() => setShowBuySharesModal(true)}/>
                 <MenuItem textValue="Stock Sell" onClick={() => {}}/>
-                <MenuItem textValue="Delete/Edit" onClick={() => {}}/>
                 <TouchableOpacity onPress={toggleMenu}>
                     <Text style={{ marginTop: 20 }}>Close</Text>
                 </TouchableOpacity>
@@ -143,9 +161,12 @@ export function Transactions({ route, navigation }: Props) {
                     setShowWalletTopUp(false)
                     await fetchAllData()
                 }} 
-                portfolioID={PortfolioID} 
-                data={undefined} 
+                portfolioID={PortfolioID}
+                // TODO: if selected entry is 0 > undefined, else -> populate with the data 
+                // data={selectedTransactionEntryID === 0 ? undefined : transactionEntries.filter((i) => i.ID===selectedTransactionEntryID)[0]} 
+                data={undefined}
             />
+            <BuySharesModal showModal={showBuySharesModal} portfolioID={PortfolioID} onClose={() => setShowBuySharesModal(false)}/>
         </>
     )
 }

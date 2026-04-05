@@ -18,9 +18,8 @@ export type PortfolioAccountProp = {
   AccountBalance: number
 }
 
-export type PortfolioItemData = {ID: number, Name:string}
-
-export type FormInputProps = {label:string, getter:any, setter: (text:string) => void, tiKeyboardType?:any, placeholder?:string}
+export type NamedItem = {ID: number, Name:string}
+export type PortfolioItemData = NamedItem
 
 export type Currency = {ID: number, Name:string, ShortName:string, Symbol:string}
 export type Currencies = Record<number, Currency>
@@ -32,3 +31,5 @@ type CurrencyContextType = {
 export const CurrencyContext = createContext<CurrencyContextType | undefined>(undefined);
 
 export type JournalLine = { ID:number, JournalEntryID: number, StockName: string | undefined, Quantity:number | undefined, AccountName: string, Debit:number, Credit:number, ReportingDebit:number, ReportingCredit:number }
+export type StockMarket = {ID: number, MarketName:string}
+export type Stock = {ID: number, Name:string, Ticker:string, StockMarket:StockMarket }
