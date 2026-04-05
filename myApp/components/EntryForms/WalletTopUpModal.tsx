@@ -20,8 +20,8 @@ type WalletTopUpData = {
     Date: Date | undefined
 }
 
-export type WalletTopUpModal = { showModal: boolean, onClose: () => void, data?:WalletTopUpData }
-export function WalletTopUpModal({ showModal, onClose, data }: WalletTopUpModal){
+export type WalletTopUpModal = { showModal: boolean, onClose: () => void, portfolioID:number, data?:WalletTopUpData }
+export function WalletTopUpModal({ showModal, onClose, portfolioID, data }: WalletTopUpModal){
     // const { Amount, WalletAccountID, EquityAccountID, Description, Date } = data
 
     const { currencies } = useCurrencies();
@@ -31,71 +31,76 @@ export function WalletTopUpModal({ showModal, onClose, data }: WalletTopUpModal)
     const [walletAccounts, setWalletAccounts] = useState<NamedItem[]>([]);
     const [equityAccounts, setEquityAccounts] = useState<NamedItem[]>([]);
 
-    const [formWalletAmount, setFormWalletAmount] = useState<number | undefined>();
-    const [formWalletAccountID, setFormWalletAccountID] = useState<number | undefined>();
-    const [formEquityAccountID, setFormEquityAccountID] = useState<number | undefined>();
-    const [formDescription, setFormDescription] = useState<string | undefined>();
-    const [formDate, setFormDate] = useState<Date | undefined>()
+    const [formWalletAmount, setFormWalletAmount] = useState<number | undefined>(data?.Amount);
+    const [formWalletAccountID, setFormWalletAccountID] = useState<number | undefined>(data?.WalletAccountID);
+    const [formEquityAccountID, setFormEquityAccountID] = useState<number | undefined>(data?.EquityAccountID);
+    const [formDescription, setFormDescription] = useState<string | undefined>(data?.Description);
+    const [formDate, setFormDate] = useState<Date>(data?.Date ?? new Date(Date.now()))
 
     const db = useSQLiteContext();
 
     // const { PortfolioID } = route.params
 
     async function saveWalletTopUp(){
+
         // add a new journal entry
         let journalEntryID:number = 0
+        console.log()
         if(formWalletAmount !== undefined && formDescription !== undefined && formDate !== undefined && formEquityAccountID !== undefined && formWalletAccountID !== undefined){
-            const addJournalEntryQuery = `INSERT INTO JournalEntries (TimestampUNIX, Description, JournalEntryTypeID) VALUES (?, ?, ?)`
-            const results = await db.runAsync(addJournalEntryQuery, [GetUnixTime(formDate.getTime()), formDescription, 1])
+            const storeAmount = formWalletAmount*100
+
+            const addJournalEntryQuery = `INSERT INTO JournalEntries (PortfolioID, TimestampUNIX, Description, JournalEntryTypeID) VALUES (?, ?, ?, ?)`
+            const results = await db.runAsync(addJournalEntryQuery, [portfolioID, GetUnixTime(formDate.getTime()), formDescription, 1])
             journalEntryID = results.lastInsertRowId
+            // console.log(journalEntryID)
 
             // credit equity
             // debit wallet
             if(journalEntryID !== 0){
                 const addJournalLinesQuery = `INSERT INTO JournalLines (JournalEntryID, AccountID, Debit, Credit, ReportingDebit, ReportingCredit) VALUES (?,?,?,?,?,?), (?,?,?,?,?,?)`
-                await db.runAsync(addJournalLinesQuery,         [journalEntryID, formWalletAccountID, formWalletAmount, 0, formWalletAmount, 0, 
-                                                                journalEntryID, formEquityAccountID, 0, formWalletAmount, 0, formWalletAmount])
+                await db.runAsync(addJournalLinesQuery,         [journalEntryID, formWalletAccountID, storeAmount, 0, storeAmount, 0, 
+                                                                journalEntryID, formEquityAccountID, 0, storeAmount, 0, storeAmount])
             }
         }
     }
 
     async function clearForm(){
-        [setFormDate, setFormDescription, setFormEquityAccountID, setFormWalletAccountID, setFormWalletAmount].map((i) => i(undefined))
+        [setFormDescription, setFormEquityAccountID, setFormWalletAccountID, setFormWalletAmount].map((i) => i(undefined))
     }
 
-    // useEffect(() => {
+    useEffect(() => {
 
-    //     async function getPortfolioCurrency() {
-    //         const results = await db.getAllAsync('SELECT DefaultCurrencyID FROM Portfolios WHERE ID = ?', [PortfolioID])
-    //         const data:number = results[0].DefaultCurrencyID
-    //         setPortfolioCurrency(currencies[data])
-    //         return data
-    //     }
+        async function getPortfolioCurrency() {
+            const results:any = await db.getAllAsync('SELECT DefaultCurrencyID FROM Portfolios WHERE ID = ?', [portfolioID])
+            const data:number = results[0].DefaultCurrencyID
+            setPortfolioCurrency(currencies[data])
+            return data
+        }
 
-    //     async function getAccounts(accountName:string, setter: (items: NamedItem[]) => void, currencyID:number){
-    //         const results = await db.getAllAsync(`
-    //             SELECT a.ID, a.Name
-    //             FROM Accounts a
-    //             INNER JOIN AccountTypes accT on accT.ID = a.AccountTypeID
-    //             WHERE accT.Name = ?
-    //             AND a.PortfolioID = ?
-    //             AND a.DefaultCurrencyID = ?
-    //         `, [accountName, PortfolioID, currencyID])
-    //         const data: NamedItem[] = results.map((row:any) =>({
-    //             ID: row.ID,
-    //             Name: row.Name
-    //         }))
-    //         setter(data)
-    //     }
+        async function getAccounts(accountName:string, setter: (items: NamedItem[]) => void, currencyID:number){
+            const results = await db.getAllAsync(`
+                SELECT a.ID, a.Name
+                FROM Accounts a
+                INNER JOIN AccountTypes accT on accT.ID = a.AccountTypeID
+                WHERE accT.Name = ?
+                AND a.PortfolioID = ?
+                AND a.DefaultCurrencyID = ?
+            `, [accountName, portfolioID, currencyID])
+            const data: NamedItem[] = results.map((row:any) =>({
+                ID: row.ID,
+                Name: row.Name
+            }))
+            setter(data)
+        }
 
-    //     async function loadData(){
-    //         // getJournalEntryTypes()
-    //         const currencyID = await getPortfolioCurrency()
-    //         getAccounts("Wallet", (items) => setWalletAccounts(items), currencyID)
-    //         getAccounts("Equity", (items) => setEquityAccounts(items), currencyID)
-    //     }
-    //     loadData()
-    // }, [PortfolioID])
+        async function loadData(){
+            // getJournalEntryTypes()
+            const currencyID = await getPortfolioCurrency()
+            getAccounts("Wallet", (items) => setWalletAccounts(items), currencyID)
+            getAccounts("Equity", (items) => setEquityAccounts(items), currencyID)
+        }
+        loadData()
+    }, [portfolioID])
 
     return (
         <Modal visible={showModal} animationType="slide" transparent>
@@ -143,13 +148,14 @@ export function WalletTopUpModal({ showModal, onClose, data }: WalletTopUpModal)
                                 // setName("");
 
                                 saveWalletTopUp();
+                                onClose();
                                 // navigation.goBack()
                                 // clearForm()
                             }}
                         >
                             <Text>Save</Text>
                         </Pressable>
-                        <Pressable style={[globalStyles.smallButton, globalStyles.wideButton]} onPress={onClose}>
+                        <Pressable style={[globalStyles.smallButton, globalStyles.wideButton]} onPress={() => onClose()}>
                             <Text>Cancel</Text>
                         </Pressable>
                     </View>

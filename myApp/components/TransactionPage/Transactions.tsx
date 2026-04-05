@@ -1,9 +1,9 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { JournalLine, RootStackParamList } from "../../types";
-import { TransactionEntry, TransactionEntryProps } from "./TransactionEntry";
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { TransactionEntry, TransactionEntryData } from "./TransactionEntry";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useSQLiteContext } from "expo-sqlite";
-import { Animated, Dimensions, Pressable, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { Animated, Dimensions, Pressable, Text, StyleSheet, TouchableOpacity, ScrollView } from "react-native";
 import { globalStyles } from "../../styles";
 import { WalletTopUpModal } from "../EntryForms/WalletTopUpModal";
 
@@ -20,7 +20,7 @@ export function Transactions({ route, navigation }: Props) {
     const [showWalletTopUp, setShowWalletTopUp] = useState<boolean>(false)
 
     const [isOpenMenu, setIsOpenMenu] = useState<boolean>(false);
-    const [transactionEntries, setTransactionEntries] = useState<TransactionEntryProps[]>([])
+    const [transactionEntries, setTransactionEntries] = useState<TransactionEntryData[]>([])
     const db = useSQLiteContext();
     const slideAnim = useRef(new Animated.Value(SCREEN_WIDTH)).current;
 
@@ -50,15 +50,15 @@ export function Transactions({ route, navigation }: Props) {
         });
     }, [navigation]);
 
-    useEffect(() => {
-        async function getJournalEntries(): Promise<TransactionEntryProps[]>{
+    const fetchAllData = useCallback(async () => {
+        async function getJournalEntries(): Promise<TransactionEntryData[]>{
             const query = `
-            SELECT ID, TimestampUNIX, Description
+            SELECT ID, TimestampUNIX, Description, JournalEntryTypeID
             FROM JournalEntries
             WHERE PortfolioID = ?
             ORDER BY TimestampUNIX DESC
             `
-            const results:TransactionEntryProps[] = db.getAllSync<TransactionEntryProps>(query, [PortfolioID])
+            const results:TransactionEntryData[] = await db.getAllAsync<TransactionEntryData>(query, [PortfolioID])
             // setTransactionEntries(results)
             return results
         }
@@ -72,7 +72,7 @@ export function Transactions({ route, navigation }: Props) {
             LEFT JOIN Stocks s on s.ID = jl.StockID
             WHERE je.PortfolioID = ?
             `
-            const results: JournalLine[] = db.getAllSync<JournalLine>(query, [PortfolioID])
+            const results: JournalLine[] = await db.getAllAsync<JournalLine>(query, [PortfolioID])
             return results.reduce<JournalDictionary>((acc, row) => {
                 const key = row.JournalEntryID;
 
@@ -94,24 +94,32 @@ export function Transactions({ route, navigation }: Props) {
             // console.log(journalLines)
             // console.log()
 
-            const results:TransactionEntryProps[] = journalEntries.map((i:TransactionEntryProps) => ({
+            const results:TransactionEntryData[] = journalEntries.map((i:TransactionEntryData) => ({
                 ID: i.ID,
                 Description: i.Description,
                 TimestampUNIX: i.TimestampUNIX,
+                JournalEntryTypeID: i.JournalEntryTypeID,
                 JournalLines: journalLines[i.ID] ?? []
             }))
             // results.map((i) => console.log(i))
             setTransactionEntries(results)
         }
-
         buildDataStructure()
-    }, [PortfolioID])
+    }, [db, PortfolioID])
+
+    useEffect(() => {
+        fetchAllData()
+    }, [fetchAllData])
 
     return (
         <>
-            {transactionEntries.map((i) => (
-                <TransactionEntry key={i.ID} {...i}/>
-            ))}
+            <ScrollView
+                contentContainerStyle={{ paddingBottom: 100 }}
+            >
+                {transactionEntries.map((i) => (
+                    <TransactionEntry key={i.ID} data={{...i}} updateParent={fetchAllData}/>
+                ))}
+            </ScrollView>
         
             <Animated.View
                 style={[
@@ -129,7 +137,15 @@ export function Transactions({ route, navigation }: Props) {
                 </TouchableOpacity>
             </Animated.View>
 
-            <WalletTopUpModal showModal={showWalletTopUp} onClose={() => setShowWalletTopUp(false)} data={undefined} />
+            <WalletTopUpModal
+                showModal={showWalletTopUp} 
+                onClose={async () => {
+                    setShowWalletTopUp(false)
+                    await fetchAllData()
+                }} 
+                portfolioID={PortfolioID} 
+                data={undefined} 
+            />
         </>
     )
 }

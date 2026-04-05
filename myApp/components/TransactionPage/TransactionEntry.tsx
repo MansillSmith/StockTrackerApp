@@ -5,11 +5,16 @@ import { useState } from "react";
 import { EditDeleteButtons } from "../EditDeleteButtons";
 import { DeleteItemForm } from "../EntryForms/DeleteItemForm";
 import { useSQLiteContext } from "expo-sqlite";
+import { WalletTopUpModal } from "../EntryForms/WalletTopUpModal";
 
-export type TransactionEntryProps = { ID: number, Description: string, TimestampUNIX: number, JournalLines: JournalLine[]}
-export function TransactionEntry({ ID, Description, TimestampUNIX, JournalLines }: TransactionEntryProps){
+export type TransactionEntryData = { ID: number, Description: string, JournalEntryTypeID:number, TimestampUNIX: number, JournalLines: JournalLine[]}
+export type TransactionEntryProps = { updateParent: () => void, data:TransactionEntryData}
+export function TransactionEntry({ updateParent, data }: TransactionEntryProps){
+    const { ID, Description, JournalEntryTypeID, TimestampUNIX, JournalLines } = data
+
     const [showEdit, setShowEdit] = useState<boolean>(false)
     const [showDelete, setShowDelete] = useState<boolean>(false)
+    // const [showEditForm, setShowEditForm] = useState<boolean>(false)
 
     const debitJournalLines: JournalLine[] = JournalLines.filter((val) => val.Debit > 0)
     const creditJournalLines: JournalLine[] = JournalLines.filter((val) => val.Credit > 0)
@@ -18,8 +23,8 @@ export function TransactionEntry({ ID, Description, TimestampUNIX, JournalLines 
 
     async function DeleteEntry(ID:number){
         const query:string = `
-        DELETE FROM JournalEntries WHERE ID = ?
-        DELETE FROM JournalLines WHERE JournalEntryID = ?
+        DELETE FROM JournalEntries WHERE ID = ?;
+        DELETE FROM JournalLines WHERE JournalEntryID = ?;
         `
         await db.runAsync(query, [ID, ID])
     }
@@ -71,9 +76,17 @@ export function TransactionEntry({ ID, Description, TimestampUNIX, JournalLines 
                         </View>
                     </View>
                 </TouchableOpacity>
-                { showEdit && <EditDeleteButtons onEdit={() => setShowEdit(true)} onRemove={() => setShowDelete(true)}/>}
+                { showEdit && <EditDeleteButtons onEdit={() => {}} onRemove={() => setShowDelete(true)}/>}
             </View>
-            <DeleteItemForm onSave={() => DeleteEntry(ID)} onClose={() => setShowDelete(false)} showModal={showDelete} />
+            <DeleteItemForm 
+                onSave={() => {
+                    DeleteEntry(ID)
+                    setShowDelete(false)
+                    updateParent()
+                }}
+                onClose={() => setShowDelete(false)} 
+                showModal={showDelete} 
+            />
         </>
     )
 }
