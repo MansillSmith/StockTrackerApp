@@ -78,7 +78,7 @@ export function WalletTopUpModal({ showModal, onClose, portfolioID, data }: Wall
             return data
         }
 
-        async function getAccounts(accountName:string, setter: (items: NamedItem[]) => void, currencyID:number){
+        async function getAccounts(accountName:string, setter: (items: NamedItem[]) => void, currencyID:number, selectedSetter: (selected: NamedItem) => void){
             const results = await db.getAllAsync(`
                 SELECT a.ID, a.Name
                 FROM Accounts a
@@ -92,13 +92,14 @@ export function WalletTopUpModal({ showModal, onClose, portfolioID, data }: Wall
                 Name: row.Name
             }))
             setter(data)
+            selectedSetter(data[0])
         }
 
         async function loadData(){
             // getJournalEntryTypes()
             const currencyID = await getPortfolioCurrency()
-            getAccounts("Wallet", (items) => setWalletAccounts(items), currencyID)
-            getAccounts("Equity", (items) => setEquityAccounts(items), currencyID)
+            getAccounts("Wallet", (items) => setWalletAccounts(items), currencyID, (selected) => setFormWalletAccountID(selected.ID))
+            getAccounts("Equity", (items) => setEquityAccounts(items), currencyID, (selected) => setFormEquityAccountID(selected.ID))
         }
         loadData()
     }, [portfolioID])

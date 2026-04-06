@@ -1,8 +1,8 @@
 import { Picker } from '@react-native-picker/picker'
 import { View, Text } from 'react-native'
 
-export type FormPickerProps = { label:string, items:any[], getter:any, setter:(e:any) => void, labelKey?:string}
-export function FormPicker( { label, items, getter, setter, labelKey="Name"}:FormPickerProps){
+export type FormPickerProps = { label:string, items:any[], getter:any, setter:(e:any) => void, labelKey?:string, showText?:boolean}
+export function FormPicker( { label, items, getter, setter, labelKey="Name", showText=true}:FormPickerProps){
     return (
         <View style={{
             flexDirection:'row',
@@ -10,7 +10,7 @@ export function FormPicker( { label, items, getter, setter, labelKey="Name"}:For
             alignItems: 'center',
             width:'100%'
         }}>
-            <Text style={{width:'20%'}}>{label}</Text>
+            {showText && <Text style={{width:'20%'}}>{label}</Text>}
             <Picker style={{height:50, width:'80%'}}
                 selectedValue={getter}
                 onValueChange={setter}

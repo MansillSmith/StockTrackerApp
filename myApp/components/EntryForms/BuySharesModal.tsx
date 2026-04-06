@@ -5,13 +5,18 @@ import { useEffect, useState } from "react";
 import { DatePicker } from "../SimpleModals/DatePicker";
 import { FormPicker } from "../SimpleModals/FormPicker";
 import { useSQLiteContext } from "expo-sqlite";
-import { NamedItem, Stock } from "../../types";
+import { Currency, NamedItem, Stock } from "../../types";
+import { useCurrencies } from "../../hooks";
 
+type WalletData = { ID: number, Name:string, CurrencyID: number}
 export type BuySharesModalProps = { showModal: boolean, portfolioID:number, onClose: () => void,}
 export function BuySharesModal({ showModal, portfolioID, onClose}: BuySharesModalProps){
-    const [walletAccounts, setWalletAccounts] = useState<NamedItem[]>([]);
+    const { currencies } = useCurrencies();
+    const [portfolioCurrency, setPortfolioCurrency] = useState<Currency | undefined>();
+
+    const [walletAccounts, setWalletAccounts] = useState<WalletData[]>([]);
     const [stocks, setStocks] = useState<Stock[]>([]);
-    const [transactionFeeAccounts, setTransacitonFeeAccounts] = useState<NamedItem[]>([]);
+    const [transactionFeeAccounts, setTransactionFeeAccounts] = useState<NamedItem[]>([]);
 
     const [formWalletAccountID, setFormWalletAccountID] = useState<number | undefined>();
     const [formStock, setFormStock] = useState<Stock | undefined>();
@@ -29,20 +34,29 @@ export function BuySharesModal({ showModal, portfolioID, onClose}: BuySharesModa
     } 
 
     useEffect(() => {
-        async function getAccounts(accountName:string, setter: (items: NamedItem[]) => void){
+        async function getPortfolioCurrency() {
+            const results:any = await db.getAllAsync('SELECT DefaultCurrencyID FROM Portfolios WHERE ID = ?', [portfolioID])
+            const data:number = results[0].DefaultCurrencyID
+            setPortfolioCurrency(currencies[data])
+            return data
+        }
+
+        async function getAccounts(accountName:string, setter: (items: WalletData[]) => void, selectedSetter: (selected: NamedItem) => void){
             const results = await db.getAllAsync(`
-                SELECT a.ID, a.Name
+                SELECT a.ID, a.Name, a.DefaultCurrencyID
                 FROM Accounts a
                 INNER JOIN AccountTypes accT on accT.ID = a.AccountTypeID
                 WHERE accT.Name = ?
                 AND a.PortfolioID = ?
                 --AND a.DefaultCurrencyID = ?
             `, [accountName, portfolioID])
-            const data: NamedItem[] = results.map((row:any) =>({
+            const data: WalletData[] = results.map((row:any) =>({
                 ID: row.ID,
-                Name: row.Name
+                Name: row.Name,
+                CurrencyID: row.CurrrencyID
             }))
             setter(data)
+            selectedSetter(data[0])
         }
 
         async function getStocks(){
@@ -50,6 +64,7 @@ export function BuySharesModal({ showModal, portfolioID, onClose}: BuySharesModa
                 SELECT s.ID as StockID, s.Name as StockName, s.Ticker, sm.ID as MarketID, sm.MarketName
                 FROM Stocks s
                 INNER JOIN StockMarket sm on sm.ID = s.MarketID
+                ORDER BY s.Ticker
             `)
             const data:Stock[] = results.map((row:any) => ({
                 ID: row.StockID,
@@ -58,6 +73,7 @@ export function BuySharesModal({ showModal, portfolioID, onClose}: BuySharesModa
                 StockMarket: { ID: row.MarketID, MarketName: row.MarketName}
             }))
             setStocks(data)
+            setFormStock(data[0])
         }
 
         async function getTransactionFeeAccounts(){
@@ -69,12 +85,14 @@ export function BuySharesModal({ showModal, portfolioID, onClose}: BuySharesModa
                 WHERE a.PortfolioID = ?
                 AND acct.Name = 'Transaction Fees'
             `, [portfolioID])
-            setTransacitonFeeAccounts(results)
+            setTransactionFeeAccounts(results)
+            setFormTransactionFeeAccount(results[0])
         }
 
-        getAccounts("Wallet", (items) => setWalletAccounts(items))
+        getAccounts("Wallet", (items) => setWalletAccounts(items), (selected) => setFormWalletAccountID(selected.ID))
         getStocks()
         getTransactionFeeAccounts()
+        getPortfolioCurrency()
     }, [showModal])
 
     return (
@@ -88,8 +106,20 @@ export function BuySharesModal({ showModal, portfolioID, onClose}: BuySharesModa
         >
             <Text>Buy Shares</Text>
             <FormPicker label="Wallet:" items={walletAccounts} getter={formWalletAccountID} setter={(e:any) => {setFormWalletAccountID(e)}}/>
-            {/* if the wallet is not the default currency, then add foreign exchange */}
             <FormPicker label="Share:" items={stocks} getter={formStock} setter={(e:any) => {setFormStock(e)}} labelKey="Ticker"/>
+            { formWalletAccountID !== portfolioCurrency?.ID && <Text>Put Exchange Fees here</Text>}
+            <View style={styles.horizontalContainer}>
+                <View style = {[{width:'70%'}]}>
+                    <FormPicker label="Tx Fee:" items={transactionFeeAccounts} getter={formTransactionFeeAccount} setter={(e:any) => {setFormTransactionFeeAccount(e)}} showText={transactionFeeAccounts.length > 1}/>
+                </View>
+                <TextInput 
+                    style = {[globalStyles.input, globalStyles.textInput, {width:'28%'}]}
+                    placeholder="Transaction Fee"
+                    value={formTransactionFee?.toString()}
+                    keyboardType="default"
+                    onChangeText={(e:any) => { setFormTransactionFee(e)}}
+                />
+            </View>
             <View style={styles.horizontalContainer}>
                 <TextInput 
                     style = {[globalStyles.input, globalStyles.textInput, {width:'48%'}]}
@@ -104,18 +134,6 @@ export function BuySharesModal({ showModal, portfolioID, onClose}: BuySharesModa
                     value={formPurchaseAmount?.toString()}
                     keyboardType="default"
                     onChangeText={(e:any) => { setFormPurchaseAmount(e)}}
-                />
-            </View>
-            <View style={styles.horizontalContainer}>
-                <View style = {[globalStyles.input, globalStyles.textInput, {width:'48%'}]}>
-                    <FormPicker label="Tx Fee:" items={transactionFeeAccounts} getter={formTransactionFeeAccount} setter={(e:any) => {setFormTransactionFeeAccount(e)}}/>
-                </View>
-                <TextInput 
-                    style = {[globalStyles.input, globalStyles.textInput, {width:'48%'}]}
-                    placeholder="Transaction Fee"
-                    value={formTransactionFee?.toString()}
-                    keyboardType="default"
-                    onChangeText={(e:any) => { setFormTransactionFee(e)}}
                 />
             </View>
             <DatePicker 
